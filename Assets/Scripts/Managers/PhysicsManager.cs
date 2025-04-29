@@ -30,14 +30,14 @@ public class PhysicsManager : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void RegisterPhysicsObject(PhysicsObject obj)
+    public void RegisterPhysicsObject(PhysicsObject p_obj)
     {
-        if (!physicsObjects.Contains(obj)) physicsObjects.Add(obj);
+        if (!physicsObjects.Contains(p_obj)) { physicsObjects.Add(p_obj); }
     }
 
-    public void ApplyForce(PhysicsObject obj, Vector3 force)
+    public void ApplyForce(PhysicsObject p_obj, Vector3 p_force)
     {
-        obj.velocity += force / obj.Mass;
+        p_obj.velocity += p_force / p_obj.Mass;
     }
 
     private void Update()
@@ -70,8 +70,7 @@ public class PhysicsManager : MonoBehaviour
         }
 
         // Frenado si casi no se mueve
-        if (obj.velocity.magnitude < 0.05f)
-            obj.velocity = Vector3.zero;
+        if (obj.velocity.magnitude < 0.05f) { obj.velocity = Vector3.zero; }
     }
 
     private void MoveObject(PhysicsObject obj)
@@ -130,71 +129,6 @@ public class PhysicsManager : MonoBehaviour
         }
     }
 
-    public float GetVelocityMagnitude(PhysicsObject obj)
-    {
-        return obj.velocity.magnitude;
-    }
-
-    public Vector3 PredictEndPoint(PhysicsObject obj, Vector3 initialForce, int simulationSteps, float simulationDelta)
-    {
-        Vector3 gravity = Physics.gravity;
-
-        Vector3 simPosition = obj.transform.position;
-        Vector3 simVelocity = initialForce / obj.Mass;
-
-        for (int i = 0; i < simulationSteps; i++)
-        {
-            simVelocity += gravity * simulationDelta;
-
-            // Fricción si colisiona con plano válido
-            foreach (var plane in collisionPlanes)
-            {
-                Vector3 normal = plane.WorldNormal;
-                Vector3 point = plane.PointOnPlane;
-
-                float distToPlane = Vector3.Dot(simPosition - point, normal);
-
-                if (distToPlane < obj.Radius && IsPointInsidePlaneBounds(plane, simPosition))
-                {
-                    float vDotN = Vector3.Dot(simVelocity, normal);
-                    if (vDotN < 0)
-                        simVelocity = Vector3.Reflect(simVelocity, normal) * plane.Restitution;
-
-                    // Aplicar fricción
-                    SurfaceType surface = plane.Surface;
-                    float mu = frictionCoefficients[(int)surface];
-                    if (simVelocity.sqrMagnitude > 0.0001f)
-                    {
-                        Vector3 friction = -mu * obj.Mass * gravity.magnitude * simVelocity.normalized;
-                        simVelocity += (friction / obj.Mass) * simulationDelta;
-                    }
-
-                    if (simVelocity.magnitude < 0.05f)
-                        return simPosition;
-                }
-            }
-
-            // Aire
-            if (simPosition.y > 1f)
-            {
-                float area = Mathf.PI * obj.Radius * obj.Radius;
-                float speed = simVelocity.magnitude;
-                if (speed > 0.01f)
-                {
-                    Vector3 airResistance = -0.5f * airDensity * dragCoefficient * area * speed * speed * simVelocity.normalized;
-                    simVelocity += (airResistance / obj.Mass) * simulationDelta;
-                }
-            }
-
-            simPosition += simVelocity * simulationDelta;
-
-            if (!IsFinite(simPosition) || simPosition.magnitude > 1000f)
-                break;
-        }
-
-        return simPosition;
-    }
-
     private bool IsPointInsidePlaneBounds(CollisionPlaneComponent plane, Vector3 point)
     {
         Transform t = plane.transform;
@@ -207,10 +141,5 @@ public class PhysicsManager : MonoBehaviour
             size = rend.bounds.size * 0.5f;
 
         return Mathf.Abs(localPoint.x) <= size.x && Mathf.Abs(localPoint.z) <= size.z;
-    }
-
-    private bool IsFinite(Vector3 v)
-    {
-        return float.IsFinite(v.x) && float.IsFinite(v.y) && float.IsFinite(v.z);
     }
 }

@@ -9,6 +9,7 @@ public class BallController : MonoBehaviour
     private Camera mainCamera;
     private LineRenderer lineRenderer;
 
+    [Header("Ball parameters")]
     [SerializeField] private float forceMultiplier = 15f;
     [SerializeField] private float maxForceMagnitude = 20f;
     [SerializeField] private int simulationSteps = 100;
@@ -19,7 +20,7 @@ public class BallController : MonoBehaviour
     private bool isDragging = false;
     private bool ballInMotion => physObj.velocity.magnitude > 0.05f;
 
-    void Start()
+    private void Start()
     {
         physObj = GetComponent<PhysicsObject>();
         lineRenderer = GetComponent<LineRenderer>();
@@ -27,7 +28,7 @@ public class BallController : MonoBehaviour
         lineRenderer.enabled = false;
     }
 
-    void Update()
+    private void Update()
     {
         if (ballInMotion)
         {
@@ -38,8 +39,9 @@ public class BallController : MonoBehaviour
         HandleInput();
     }
 
-    void HandleInput()
+    private void HandleInput()
     {
+        // start dragging
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -54,12 +56,14 @@ public class BallController : MonoBehaviour
             }
         }
 
+        // update dragging
         if (Input.GetMouseButton(0) && isDragging)
         {
             dragEndPos = GetMouseWorldPosition();
             UpdateTrajectoryLine();
         }
 
+        // end dragging
         if (Input.GetMouseButtonUp(0) && isDragging)
         {
             ApplyDragForce();
@@ -68,39 +72,30 @@ public class BallController : MonoBehaviour
         }
     }
 
-    Vector3 GetMouseWorldPosition()
+    private Vector3 GetMouseWorldPosition()
     {
-        Plane plane = new Plane(Vector3.up, transform.position);
+        Plane plane = new(Vector3.up, transform.position);
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
 
-        if (plane.Raycast(ray, out float enter))
-            return ray.GetPoint(enter);
+        if (plane.Raycast(ray, out float enter)) { return ray.GetPoint(enter); }
 
         return transform.position;
     }
 
-    void ApplyDragForce()
+    private void ApplyDragForce()
     {
         Vector3 forceDirection = dragStartPos - dragEndPos;
         Vector3 finalForce = Vector3.ClampMagnitude(forceDirection, maxForceMagnitude);
         PhysicsManager.Instance.ApplyForce(physObj, finalForce * forceMultiplier);
     }
 
-    void UpdateTrajectoryLine()
+    private void UpdateTrajectoryLine()
     {
         Vector3 forceDirection = dragStartPos - dragEndPos;
         Vector3 finalForce = Vector3.ClampMagnitude(forceDirection, maxForceMagnitude) * forceMultiplier;
 
-        Vector3 predictedEnd = PhysicsManager.Instance.PredictEndPoint(
-            physObj,
-            finalForce,
-            simulationSteps,
-            simulationDelta
-        );
-
         lineRenderer.positionCount = 2;
         lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, predictedEnd);
+        lineRenderer.SetPosition(1, finalForce);
     }
-
 }

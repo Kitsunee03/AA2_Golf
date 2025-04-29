@@ -7,10 +7,7 @@ public class PhysicsObject : MonoBehaviour
 
     [HideInInspector] public Vector3 velocity;
 
-    private void Start()
-    {
-        PhysicsManager.Instance.RegisterPhysicsObject(this);
-    }
+    private void Start() { PhysicsManager.Instance.RegisterPhysicsObject(this); }
 
     #region Accessors
     public Vector3 Velocity { get => velocity; set => velocity = value; }

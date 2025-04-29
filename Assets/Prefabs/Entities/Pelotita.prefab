@@ -35,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8066232945915917451
 MeshFilter:
@@ -106,7 +106,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6229353553411930871
 MonoBehaviour:
@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2d4906e5dedcf49888f2257990f04d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  surfaceType: 0
   mass: 1
   radius: 1
   velocity: {x: 0, y: 0, z: 0}
@@ -138,6 +137,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   forceMultiplier: 10
   maxForceMagnitude: 20
+  simulationSteps: 100
+  simulationDelta: 0.02
 --- !u!120 &7216801661865966118
 LineRenderer:
   serializedVersion: 2

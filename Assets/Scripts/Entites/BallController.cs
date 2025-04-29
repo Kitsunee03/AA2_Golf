@@ -98,4 +98,12 @@ public class BallController : MonoBehaviour
         lineRenderer.SetPosition(0, transform.position);
         lineRenderer.SetPosition(1, finalForce);
     }
+
+    public void ResetBall()
+    {
+        lineRenderer.enabled = false;
+        physObj.Velocity = Vector3.zero;
+        transform.position = Vector3.zero;
+        transform.rotation = Quaternion.identity;
+    }
 }

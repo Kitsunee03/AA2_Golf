@@ -20,12 +20,16 @@ public class BallController : MonoBehaviour
     private bool isDragging = false;
     private bool ballInMotion => physObj.velocity.magnitude > 0.05f;
 
-    private void Start()
+    private void Awake()
     {
         physObj = GetComponent<PhysicsObject>();
         lineRenderer = GetComponent<LineRenderer>();
-        mainCamera = Camera.main;
         lineRenderer.enabled = false;
+    }
+
+    private void Start()
+    {
+        mainCamera = Camera.main;
     }
 
     private void Update()

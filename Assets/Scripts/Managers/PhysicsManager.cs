@@ -20,10 +20,6 @@ public class PhysicsManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-
-            CollisionPlaneComponent[] planes = FindObjectsOfType<CollisionPlaneComponent>();
-            foreach (CollisionPlaneComponent plane in planes) { collisionPlanes.Add(plane); }
-
             return;
         }
 
@@ -33,6 +29,11 @@ public class PhysicsManager : MonoBehaviour
     public void RegisterPhysicsObject(PhysicsObject p_obj)
     {
         if (!physicsObjects.Contains(p_obj)) { physicsObjects.Add(p_obj); }
+    }
+
+    public void RegisterCollisionPlane(CollisionPlaneComponent p_plane)
+    {
+        if (!collisionPlanes.Contains(p_plane)) { collisionPlanes.Add(p_plane); }
     }
 
     public void ApplyForce(PhysicsObject p_obj, Vector3 p_force)

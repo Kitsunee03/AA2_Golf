@@ -12,6 +12,11 @@ public class CollisionPlaneComponent : MonoBehaviour
     [SerializeField] private float restitution = 0.2f;
     [SerializeField] private SurfaceType surfaceType = SurfaceType.Grass;
 
+    private void Start()
+    {
+        PhysicsManager.Instance.RegisterCollisionPlane(this);
+    }
+
     public Vector3 WorldNormal => transform.TransformDirection(localNormal.normalized);
     public Vector3 PointOnPlane => transform.position;
     public float Restitution { get => restitution; set => restitution = Mathf.Clamp01(value); }

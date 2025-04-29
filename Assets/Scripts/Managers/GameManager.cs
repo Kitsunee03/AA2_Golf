@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [SerializeField] private GameObject[] levelPrefabs;
     [SerializeField] private Transform levelParent;
     private GameObject currentLevel;
@@ -10,7 +12,21 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        ball = FindObjectOfType<BallController>();
+        if (Instance == null)
+        {
+            Instance = this;
+
+            ball = FindObjectOfType<BallController>();
+
+            return;
+        }
+
+        Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        LoadNextLevel();
     }
 
     public void LoadNextLevel()

@@ -1,3 +1,4 @@
+// GameManager.cs
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -15,12 +16,9 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-
             ball = FindObjectOfType<BallController>();
-
             return;
         }
-
         Destroy(gameObject);
     }
 
@@ -33,15 +31,16 @@ public class GameManager : MonoBehaviour
     {
         if (currentLevelIndex < levelPrefabs.Length)
         {
-            if (currentLevel != null) { Destroy(currentLevel); }
+            if (currentLevel != null)
+                Destroy(currentLevel);
 
             currentLevel = Instantiate(levelPrefabs[currentLevelIndex++], levelParent);
             ball.ResetBall();
         }
         else
         {
-            // game end
             Debug.Log("All levels completed!");
+            // Aquí podrías mostrar UI de fin de juego
         }
     }
 }

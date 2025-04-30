@@ -1,113 +1,97 @@
+﻿// BallController.cs
 using UnityEngine;
-using System.Collections.Generic;
 
-[RequireComponent(typeof(PhysicsObject))]
-[RequireComponent(typeof(LineRenderer))]
+[RequireComponent(typeof(PhysicsObject), typeof(LineRenderer))]
 public class BallController : MonoBehaviour
 {
-    private PhysicsObject physObj;
-    private Camera mainCamera;
-    private LineRenderer lineRenderer;
+    private PhysicsObject phys;
+    private Camera cam;
+    private LineRenderer lr;
 
-    [Header("Ball parameters")]
-    [SerializeField] private float forceMultiplier = 15f;
-    [SerializeField] private float maxForceMagnitude = 20f;
-    [SerializeField] private int simulationSteps = 100;
-    [SerializeField] private float simulationDelta = 0.02f;
+    [Header("Force Settings")]
+    [SerializeField] private float forceMultiplier = 50f;
+    [SerializeField] private float maxDragDistance = 5f;
+    [SerializeField] private int predictionSteps = 50;
 
-    private Vector3 dragStartPos;
-    private Vector3 dragEndPos;
-    private bool isDragging = false;
-    private bool ballInMotion => physObj.velocity.magnitude > 0.05f;
+    private Vector3 dragStart;
+    private bool dragging;
 
     private void Awake()
     {
-        physObj = GetComponent<PhysicsObject>();
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.enabled = false;
+        phys = GetComponent<PhysicsObject>();
+        lr = GetComponent<LineRenderer>();
+        lr.useWorldSpace = true;
+        lr.positionCount = 2;
+        lr.enabled = false;
     }
 
-    private void Start()
-    {
-        mainCamera = Camera.main;
-    }
+    private void Start() => cam = Camera.main;
 
     private void Update()
     {
-        if (ballInMotion)
+        // Si la bola está en movimiento, ocultar la línea
+        if (phys.Velocity.magnitude > 0.01f)
         {
-            lineRenderer.enabled = false;
+            lr.enabled = false;
             return;
         }
 
-        HandleInput();
+        if (Input.GetMouseButtonDown(0)) StartDrag();
+        if (dragging && Input.GetMouseButton(0)) UpdateDrag();
+        if (dragging && Input.GetMouseButtonUp(0)) EndDrag();
     }
 
-    private void HandleInput()
+    private void StartDrag()
     {
-        // start dragging
-        if (Input.GetMouseButtonDown(0))
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit) && hit.transform == transform)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                if (hit.transform == transform)
-                {
-                    isDragging = true;
-                    dragStartPos = GetMouseWorldPosition();
-                    lineRenderer.enabled = true;
-                }
-            }
-        }
-
-        // update dragging
-        if (Input.GetMouseButton(0) && isDragging)
-        {
-            dragEndPos = GetMouseWorldPosition();
-            UpdateTrajectoryLine();
-        }
-
-        // end dragging
-        if (Input.GetMouseButtonUp(0) && isDragging)
-        {
-            ApplyDragForce();
-            isDragging = false;
-            lineRenderer.enabled = false;
+            dragging = true;
+            dragStart = GetMouseWorldPos();
+            lr.enabled = true;
         }
     }
 
-    private Vector3 GetMouseWorldPosition()
+    private void UpdateDrag()
     {
-        Plane plane = new(Vector3.up, transform.position);
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Vector3 current = GetMouseWorldPos();
+        DrawPrediction(dragStart - current);
+    }
 
-        if (plane.Raycast(ray, out float enter)) { return ray.GetPoint(enter); }
+    private void EndDrag()
+    {
+        Vector3 drag = dragStart - GetMouseWorldPos();
+        Vector3 applied = Vector3.ClampMagnitude(drag, maxDragDistance) * forceMultiplier;
+        PhysicsManager.Instance.ApplyForce(phys, applied);
+        dragging = false;
+        lr.enabled = false;
+    }
 
+    private Vector3 GetMouseWorldPos()
+    {
+        Plane ground = new Plane(Vector3.up, transform.position);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (ground.Raycast(ray, out float enter)) return ray.GetPoint(enter);
         return transform.position;
     }
 
-    private void ApplyDragForce()
+    private void DrawPrediction(Vector3 drag)
     {
-        Vector3 forceDirection = dragStartPos - dragEndPos;
-        Vector3 finalForce = Vector3.ClampMagnitude(forceDirection, maxForceMagnitude);
-        PhysicsManager.Instance.ApplyForce(physObj, finalForce * forceMultiplier);
-    }
+        // Vector de fuerza limitado
+        Vector3 force = Vector3.ClampMagnitude(drag, maxDragDistance) * forceMultiplier;
+        // Punto final = posición de la bola + dirección de la fuerza
+        Vector3 endPoint = transform.position + force;
 
-    private void UpdateTrajectoryLine()
-    {
-        Vector3 forceDirection = dragStartPos - dragEndPos;
-        Vector3 finalForce = Vector3.ClampMagnitude(forceDirection, maxForceMagnitude) * forceMultiplier;
-
-        lineRenderer.positionCount = 2;
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, finalForce);
+        // Dibuja línea desde la bola hasta ese punto
+        lr.SetPosition(0, transform.position);
+        lr.SetPosition(1, endPoint);
     }
 
     public void ResetBall()
     {
-        lineRenderer.enabled = false;
-        physObj.Velocity = Vector3.zero;
+        phys.Velocity = Vector3.zero;
         transform.position = Vector3.zero;
         transform.rotation = Quaternion.identity;
+        lr.enabled = false;
     }
 }

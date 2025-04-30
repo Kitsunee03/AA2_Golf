@@ -1,60 +1,47 @@
+// CameraController.cs
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    private GameObject m_target;
+    private Transform target;
+    [Header("Distance Limits")]
+    [SerializeField] private float minDistance = 1.5f;
+    [SerializeField] private float maxDistance = 50f;
+    [SerializeField] private float lerpSpeed = 20f;
 
-    [Header("Movement")]
-    [SerializeField, Min(0)] private Vector2 distanceLimits = new(1.5f, 50f);
-    [SerializeField, Min(0)] private float m_cameraLerp = 20f;
-    private float m_targetDistance;
-    private float rotationX, rotationY;
-
-    //private UIManager m_ui;
-
-    private float timeScaleMultiplier = 1.0f;
+    private float currentDistance;
+    private float rotX, rotY;
 
     private void Awake()
     {
-        m_target = GameObject.FindGameObjectWithTag("Player");
-        m_targetDistance = distanceLimits.y / 2;
-        //m_ui = FindObjectOfType<UIManager>();
+        var player = GameObject.FindGameObjectWithTag("Player");
+        if (player) target = player.transform;
+        currentDistance = (minDistance + maxDistance) * 0.5f;
     }
 
     private void LateUpdate()
     {
+        if (!target) return;
         HandleRotation();
-        HandleMovement();
-
         HandleZoom();
+        HandlePosition();
     }
 
     private void HandleRotation()
     {
-        // WASD
-        rotationX += Input.GetAxis("Vertical") / 3;
-        rotationY -= Input.GetAxis("Horizontal") / 3;
-
-        rotationX = Mathf.Clamp(rotationX, -40, 50f); // -40,50 --> camera angle limits
-        transform.eulerAngles = new(rotationX, rotationY, 0);
-    }
-
-    private void HandleMovement()
-    {
-        transform.position = Vector3.Lerp(
-            transform.position,
-            m_target.transform.position - transform.forward * m_targetDistance,
-            m_cameraLerp * Time.deltaTime
-        );
+        rotX = Mathf.Clamp(rotX + Input.GetAxis("Vertical") / 3f, -40f, 50f);
+        rotY += -Input.GetAxis("Horizontal") / 3f;
+        transform.rotation = Quaternion.Euler(rotX, rotY, 0f);
     }
 
     private void HandleZoom()
     {
-        m_targetDistance -= Input.mouseScrollDelta.y;
+        currentDistance = Mathf.Clamp(currentDistance - Input.mouseScrollDelta.y, minDistance, maxDistance);
+    }
 
-        if (Input.GetKey(KeyCode.DownArrow)) { m_targetDistance += 0.1f; } // v = -zoom
-        else if (Input.GetKey(KeyCode.UpArrow)) { m_targetDistance -= 0.1f; } // ^ = +zoom
-
-        m_targetDistance = Mathf.Clamp(m_targetDistance, distanceLimits.x, distanceLimits.y); // zoom limits
+    private void HandlePosition()
+    {
+        Vector3 desired = target.position - transform.forward * currentDistance;
+        transform.position = Vector3.Lerp(transform.position, desired, lerpSpeed * Time.deltaTime);
     }
 }

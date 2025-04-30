@@ -122,7 +122,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mass: 1
   radius: 1
-  velocity: {x: 0, y: 0, z: 0}
+  Velocity: {x: 0, y: 0, z: 0}
+  CurrentSurface: 0
 --- !u!114 &4610008045852824673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,10 +136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6b97546e9de29428d1c26e693c32d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forceMultiplier: 10
-  maxForceMagnitude: 20
-  simulationSteps: 100
-  simulationDelta: 0.02
+  forceMultiplier: 50
+  maxDragDistance: 5
+  predictionSteps: 50
 --- !u!120 &7216801661865966118
 LineRenderer:
   serializedVersion: 2

@@ -1,3 +1,4 @@
+ï»¿// PhysicsManager.cs
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,142 +6,105 @@ public class PhysicsManager : MonoBehaviour
 {
     public static PhysicsManager Instance;
 
-    [Header("Parámetros físicos globales")]
-    [SerializeField] private float airDensity = 1.225f;
-    [SerializeField] private float dragCoefficient = 0.47f;
+    [Header("Global Physics Parameters")]
+    [SerializeField, Tooltip("Air density (kg/mÂ³)")] private float airDensity = 1.225f;
+    [SerializeField, Tooltip("Drag coefficient for sphere")] private float dragCoefficient = 0.47f;
 
-    [Tooltip("Fricción para Grass, Ice, Sand (orden según enum)")]
-    public float[] frictionCoefficients = { 0.4f, 0.1f, 0.6f };
+    [Header("Rolling Friction Coefficients (0=Grass,1=Ice,2=Sand)")]
+    [SerializeField] private float[] rollingFriction = { 0.4f, 0.1f, 0.6f };
 
-    private List<PhysicsObject> physicsObjects = new();
-    private List<CollisionPlaneComponent> collisionPlanes = new();
+    private List<PhysicsObject> bodies = new List<PhysicsObject>();
+    private List<CollisionPlaneComponent> planes = new List<CollisionPlaneComponent>();
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            return;
-        }
-
-        Destroy(gameObject);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    public void RegisterPhysicsObject(PhysicsObject p_obj)
+    public void RegisterPhysicsObject(PhysicsObject body)
     {
-        if (!physicsObjects.Contains(p_obj)) { physicsObjects.Add(p_obj); }
+        if (!bodies.Contains(body)) bodies.Add(body);
     }
 
-    public void RegisterCollisionPlane(CollisionPlaneComponent p_plane)
+    public void RegisterCollisionPlane(CollisionPlaneComponent plane)
     {
-        if (!collisionPlanes.Contains(p_plane)) { collisionPlanes.Add(p_plane); }
+        if (!planes.Contains(plane)) planes.Add(plane);
     }
 
-    public void ApplyForce(PhysicsObject p_obj, Vector3 p_force)
+    public void ApplyForce(PhysicsObject body, Vector3 force)
     {
-        p_obj.velocity += p_force / p_obj.Mass;
+        body.Velocity += force / body.Mass;
     }
 
     private void Update()
     {
-        foreach (PhysicsObject obj in physicsObjects)
+        float dt = Time.deltaTime;
+        foreach (var body in bodies)
         {
-            ApplyPhysics(obj);
-            MoveObject(obj);
+            IntegratePhysics(body, dt);
+            HandleCollisions(body);
+            body.ApplyTransform();
         }
     }
 
-    private void ApplyPhysics(PhysicsObject obj)
+    private void IntegratePhysics(PhysicsObject body, float dt)
     {
-        Vector3 gravity = Physics.gravity;
+        // 1) Gravedad (aceleraciÃ³n constante, independiente de la masa)
+        body.Velocity += Physics.gravity * dt;
 
-        // Gravedad constante
-        obj.velocity += gravity * Time.deltaTime;
-
-        // Resistencia del aire si está elevado
-        if (obj.transform.position.y > 1f)
+        // 2) Resistencia del aire si y > 1m
+        if (body.transform.position.y > 1f)
         {
-            float area = Mathf.PI * obj.Radius * obj.Radius;
-            float speed = obj.velocity.magnitude;
-
+            float area = Mathf.PI * body.Radius * body.Radius;
+            float speed = body.Velocity.magnitude;
             if (speed > 0.01f)
             {
-                Vector3 airResistance = -0.5f * airDensity * dragCoefficient * area * speed * speed * obj.velocity.normalized;
-                obj.velocity += (airResistance / obj.Mass) * Time.deltaTime;
+                Vector3 drag = -0.5f * airDensity * dragCoefficient * area * speed * speed * body.Velocity.normalized;
+                body.Velocity += (drag / body.Mass) * dt;
             }
         }
 
-        // Frenado si casi no se mueve
-        if (obj.velocity.magnitude < 0.05f) { obj.velocity = Vector3.zero; }
+        // 3) FricciÃ³n de rodadura lineal progresiva
+        int idx = (int)body.CurrentSurface;
+        float mu = rollingFriction[idx];
+        // deceleraciÃ³n constante: a = Î¼Â·g
+        float decel = mu * Physics.gravity.magnitude;
+        float velMag = body.Velocity.magnitude;
+        if (velMag > 0f)
+        {
+            float newMag = velMag - decel * dt;
+            if (newMag > 0f)
+                body.Velocity = body.Velocity.normalized * newMag;
+            else
+                body.Velocity = Vector3.zero;
+        }
+
+        // 4) IntegraciÃ³n de posiciÃ³n
+        body.Position += body.Velocity * dt;
     }
 
-    private void MoveObject(PhysicsObject obj)
+    private void HandleCollisions(PhysicsObject body)
     {
-        Vector3 nextPos = obj.transform.position + obj.velocity * Time.deltaTime;
-        Vector3 gravity = Physics.gravity;
-
-        foreach (var plane in collisionPlanes)
+        foreach (var plane in planes)
         {
-            Vector3 normal = plane.WorldNormal;
-            Vector3 point = plane.PointOnPlane;
-
-            // Distancia del centro de la esfera al plano
-            float distanceToPlane = Vector3.Dot(nextPos - point, normal);
-
-            if (distanceToPlane < obj.Radius && IsPointInsidePlaneBounds(plane, nextPos))
+            Vector3 n = plane.WorldNormal;
+            float dist = Vector3.Dot(body.Position - plane.PointOnPlane, n);
+            if (dist < body.Radius && plane.IsPointInsideBounds(body.Position))
             {
-                // Corrección de penetración
-                float penetration = obj.Radius - distanceToPlane;
-                nextPos += normal * penetration;
+                // CorrecciÃ³n de penetraciÃ³n
+                body.Position += n * (body.Radius - dist);
 
-                // Rebote si se dirige contra el plano
-                float vDotN = Vector3.Dot(obj.velocity, normal);
-                if (vDotN < 0)
+                // Rebote
+                float vN = Vector3.Dot(body.Velocity, n);
+                if (vN < 0)
                 {
-                    obj.velocity = Vector3.Reflect(obj.velocity, normal) * plane.Restitution;
-                    obj.velocity *= 0.95f; // fricción adicional de impacto
+                    body.Velocity = Vector3.Reflect(body.Velocity, n) * plane.Restitution;
                 }
 
-                // Fricción del plano
-                SurfaceType surface = plane.Surface;
-                float mu = frictionCoefficients[(int)surface];
-
-                if (obj.velocity.sqrMagnitude > 0.0001f)
-                {
-                    Vector3 friction = -mu * obj.Mass * gravity.magnitude * obj.velocity.normalized;
-                    obj.velocity += (friction / obj.Mass) * Time.deltaTime;
-                }
-
-                // Detener si es demasiado lento
-                if (obj.velocity.magnitude < 0.05f)
-                    obj.velocity = Vector3.zero;
+                // Registrar colisiÃ³n
+                body.OnCollision(plane);
             }
         }
-
-        obj.transform.position = nextPos;
-
-        // Rotación visual de la bola
-        Vector3 horizontalVel = new Vector3(obj.velocity.x, 0f, obj.velocity.z);
-        if (horizontalVel != Vector3.zero)
-        {
-            obj.transform.Rotate(
-                Vector3.Cross(Vector3.up, horizontalVel.normalized),
-                horizontalVel.magnitude / obj.Radius * Mathf.Rad2Deg * Time.deltaTime
-            );
-        }
-    }
-
-    private bool IsPointInsidePlaneBounds(CollisionPlaneComponent plane, Vector3 point)
-    {
-        Transform t = plane.transform;
-        Vector3 localPoint = t.InverseTransformPoint(point);
-
-        Vector3 size = Vector3.one;
-        if (t.TryGetComponent<BoxCollider>(out var box))
-            size = box.size * 0.5f;
-        else if (t.TryGetComponent<Renderer>(out var rend))
-            size = rend.bounds.size * 0.5f;
-
-        return Mathf.Abs(localPoint.x) <= size.x && Mathf.Abs(localPoint.z) <= size.z;
     }
 }

@@ -50,10 +50,10 @@ public class PhysicsManager : MonoBehaviour
 
     private void IntegratePhysics(PhysicsObject body, float dt)
     {
-        // 1) Gravedad (aceleración constante, independiente de la masa)
+        // 1) Gravedad
         body.Velocity += Physics.gravity * dt;
 
-        // 2) Resistencia del aire si y > 1m
+        // 2) Resistencia del aire
         if (body.transform.position.y > 1f)
         {
             float area = Mathf.PI * body.Radius * body.Radius;
@@ -65,19 +65,25 @@ public class PhysicsManager : MonoBehaviour
             }
         }
 
-        // 3) Fricción de rodadura lineal progresiva
-        int idx = (int)body.CurrentSurface;
-        float mu = rollingFriction[idx];
-        // deceleración constante: a = μ·g
-        float decel = mu * Physics.gravity.magnitude;
-        float velMag = body.Velocity.magnitude;
-        if (velMag > 0f)
+        // 3) Fricción de rodadura SOLO si está en contacto con el suelo
+        float groundThreshold = body.Radius + 0.01f;        // tolerancia de contacto
+        if (body.Position.y <= groundThreshold)
         {
-            float newMag = velMag - decel * dt;
-            if (newMag > 0f)
-                body.Velocity = body.Velocity.normalized * newMag;
-            else
-                body.Velocity = Vector3.zero;
+            int idx = (int)body.CurrentSurface;
+            float mu = rollingFriction[idx];
+            float decel = mu * Physics.gravity.magnitude;
+
+            // Descomponemos velocidad en horizontal y vertical
+            Vector3 vHoriz = new Vector3(body.Velocity.x, 0f, body.Velocity.z);
+            float speedH = vHoriz.magnitude;
+            if (speedH > 0f)
+            {
+                float newH = Mathf.Max(speedH - decel * dt, 0f);
+                vHoriz = vHoriz.normalized * newH;
+            }
+
+            // Reconstruimos la velocidad
+            body.Velocity = new Vector3(vHoriz.x, body.Velocity.y, vHoriz.z);
         }
 
         // 4) Integración de posición
@@ -95,12 +101,16 @@ public class PhysicsManager : MonoBehaviour
                 // Corrección de penetración
                 body.Position += n * (body.Radius - dist);
 
-                // Rebote
+                // Rebote avanzado: sólo en la componente normal
                 float vN = Vector3.Dot(body.Velocity, n);
-                if (vN < 0)
+                if (vN < 0f)
                 {
-                    body.Velocity = Vector3.Reflect(body.Velocity, n) * plane.Restitution;
+                    Vector3 vNormal = vN * n;
+                    Vector3 vTangent = body.Velocity - vNormal;
+                    Vector3 vNormalOut = -vNormal * plane.Restitution;
+                    body.Velocity = vTangent + vNormalOut;
                 }
+
 
                 // Registrar colisión
                 body.OnCollision(plane);

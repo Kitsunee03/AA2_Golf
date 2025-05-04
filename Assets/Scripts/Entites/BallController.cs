@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [RequireComponent(typeof(PhysicsObject), typeof(LineRenderer))]
 public class BallController : MonoBehaviour
@@ -8,13 +9,12 @@ public class BallController : MonoBehaviour
     private LineRenderer lr;
 
     [Header("Force Settings")]
-    [SerializeField] private float forceMultiplier = 50f;
     [SerializeField] private float maxDragDistance = 5f;
+    [SerializeField] private float maxLaunchSpeed = 70f;
     [SerializeField, Range(0, 90f)]
-    private float launchAngle = 45f;            // Ángulo de elevación en grados
+    private float launchAngle = 45f;         // Ángulo de elevación en grados
 
     [Header("Prediction Settings")]
-    [SerializeField] private int predictionSteps = 30;
     [SerializeField] private float predictionStepTime = 0.1f;
 
     private Vector3 dragStart;
@@ -25,7 +25,6 @@ public class BallController : MonoBehaviour
         phys = GetComponent<PhysicsObject>();
         lr = GetComponent<LineRenderer>();
         lr.useWorldSpace = true;
-        lr.positionCount = predictionSteps;
         lr.enabled = false;
     }
 
@@ -33,54 +32,48 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
-        // Si la bola está en movimiento, ocultar la previsión
-        if (phys.Velocity.magnitude > 0.01f)
+        if (Input.GetMouseButtonDown(0)) StartDrag();
+        if (dragging && Input.GetMouseButton(0)) UpdateDrag();
+        if (dragging && Input.GetMouseButtonUp(0)) EndDrag();
+    }
+
+    private void DrawPrediction(Vector3 drag)
+    {
+        // 1) Calcula v0Vec tal como lo tienes…
+        float mag = Mathf.Clamp(drag.magnitude, 0f, maxDragDistance);
+        float tNorm = mag / maxDragDistance;
+        float v0 = tNorm * maxLaunchSpeed;
+        float theta = launchAngle * Mathf.Deg2Rad;
+        Vector3 dir = drag.normalized;
+        Vector3 v0Vec = dir * (v0 * Mathf.Cos(theta))
+                      + Vector3.up * (v0 * Mathf.Sin(theta));
+
+        // 2) Calcula tiempo de vuelo (desde y0 hasta y0)
+        float y0 = transform.position.y;
+        float vy = v0Vec.y;
+        float g = Physics.gravity.magnitude;
+        float underS = vy * vy + 2f * g * y0;
+        if (underS < 0f)
+        {
+            lr.enabled = false;
+            return;
+        }
+        float tFlight = (vy + Mathf.Sqrt(underS)) / g;
+        if (tFlight <= 0f)
         {
             lr.enabled = false;
             return;
         }
 
-        if (Input.GetMouseButtonDown(0)) StartDrag();
-        if (dragging)
-        {
-            if (Input.GetMouseButton(0)) UpdateDrag();
-            if (Input.GetMouseButtonUp(0)) EndDrag();
-            return; 
-        }
-    }
-
-    private void DrawPrediction(Vector3 drag)
-    {
-        // 1) Fuerza “plana” (x,z) limitada 
-        Vector3 flatForce = Vector3.ClampMagnitude(drag, maxDragDistance) * forceMultiplier;
-
-        // 2) Ángulo en radianes
-        float theta = launchAngle * Mathf.Deg2Rad;
-
-        // 3) Velocidad inicial total (v0 = F/m)
-        Vector3 dirFlat = flatForce.normalized;
-        float flatMag = flatForce.magnitude;
-        float v0 = flatMag / phys.Mass;
-        Vector3 v0Vec = dirFlat * (v0 * Mathf.Cos(theta))
-                      + Vector3.up * (v0 * Mathf.Sin(theta));
-
-        // 4) Tiempo de vuelo hasta volver al mismo nivel Y0
-        float g = Physics.gravity.magnitude;
-        float tFlight = (2f * v0Vec.y) / g;
-        if (tFlight <= 0f) { lr.enabled = false; return; }
-
-        // 5) Dividimos en pasos y ajustamos el LineRenderer
-        int steps = Mathf.CeilToInt(tFlight / predictionStepTime);
+        // 3) Decide cuántos puntos: al menos 2
+        int steps = Mathf.Max(2, Mathf.CeilToInt(tFlight / predictionStepTime));
         lr.positionCount = steps;
         lr.enabled = true;
 
-        // 6) Para cada instante t, cae la parábola exacta
+        // 4) Muestrea la parábola en t∈[0, tFlight]
         for (int i = 0; i < steps; i++)
         {
-            float t = predictionStepTime * i;
-            // x(t) = x0 + vx*t
-            // y(t) = y0 + vy*t - ½ g t²
-            // z(t) = z0 + vz*t
+            float t = (tFlight * i) / (steps - 1); // así llegas exactamente a tFlight
             Vector3 p = transform.position + new Vector3(
                 v0Vec.x * t,
                 v0Vec.y * t - 0.5f * g * t * t,
@@ -110,17 +103,22 @@ public class BallController : MonoBehaviour
 
     private void EndDrag()
     {
-        Vector3 drag = dragStart - GetMouseWorldPos();
-        Vector3 flatForce = Vector3.ClampMagnitude(drag, maxDragDistance) * forceMultiplier;
+        Vector3 delta = dragStart - GetMouseWorldPos();
+        // 1) Magnitud de arrastre [0…maxDragDistance]
+        float mag = Mathf.Clamp(delta.magnitude, 0f, maxDragDistance);
+        // 2) Interpolador t [0…1]
+        float t = mag / maxDragDistance;
+        // 3) Velocidad inicial v0 [0…maxLaunchSpeed]
+        float v0 = t * maxLaunchSpeed;
 
-        // Convertimos flatForce (x,z) + módulo en y según el ángulo
+        // Dirección plana
+        Vector3 dirFlat = delta.normalized;
         float rad = launchAngle * Mathf.Deg2Rad;
-        float flatMag = flatForce.magnitude;
-        Vector3 dirFlat = flatForce.normalized;
-        Vector3 applied = dirFlat * flatMag * Mathf.Cos(rad)      // componente horizontal
-                          + Vector3.up * (flatMag * Mathf.Sin(rad)); // componente vertical
+        // Componente horizontal y vertical según ángulo
+        Vector3 v0Vec = dirFlat * (v0 * Mathf.Cos(rad))
+                      + Vector3.up * (v0 * Mathf.Sin(rad));
 
-        PhysicsManager.Instance.ApplyForce(phys, applied);
+        PhysicsManager.Instance.ApplyForce(phys, v0Vec * phys.Mass);
         dragging = false;
         lr.enabled = false;
     }
@@ -136,7 +134,8 @@ public class BallController : MonoBehaviour
     public void ResetBall()
     {
         phys.Velocity = Vector3.zero;
-        transform.position = Vector3.zero;
+        phys.Position = Vector3.zero;
+        phys.ApplyTransform();
         transform.rotation = Quaternion.identity;
         lr.enabled = false;
     }

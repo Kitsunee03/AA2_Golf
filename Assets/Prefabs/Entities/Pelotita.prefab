@@ -35,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8066232945915917451
 MeshFilter:
@@ -120,10 +120,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2d4906e5dedcf49888f2257990f04d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mass: 1
-  radius: 1
+  mass: 25
+  radius: 0.5
   Velocity: {x: 0, y: 0, z: 0}
   CurrentSurface: 0
+  CurrentPlaneNormal: {x: 0, y: 1, z: 0}
+  CurrentRestitution: 0
 --- !u!114 &4610008045852824673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,9 +138,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6b97546e9de29428d1c26e693c32d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forceMultiplier: 50
   maxDragDistance: 5
-  predictionSteps: 50
+  maxLaunchSpeed: 30
+  launchAngle: 45
+  predictionStepTime: 0.1
 --- !u!120 &7216801661865966118
 LineRenderer:
   serializedVersion: 2

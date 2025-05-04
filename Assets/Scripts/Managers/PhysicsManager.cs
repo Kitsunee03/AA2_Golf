@@ -37,9 +37,9 @@ public class PhysicsManager : MonoBehaviour
         body.Velocity += force / body.Mass;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        float dt = Time.deltaTime;
+        float dt = Time.fixedDeltaTime;   
         foreach (var body in bodies)
         {
             IntegratePhysics(body, dt);
@@ -53,37 +53,42 @@ public class PhysicsManager : MonoBehaviour
         // 1) Gravedad
         body.Velocity += Physics.gravity * dt;
 
-        // 2) Resistencia del aire
-        if (body.transform.position.y > 1f)
+        // 2) Resistencia del aire (si y>1m), sin invertir la velocidad
+        if (body.Position.y > 1f)
         {
             float area = Mathf.PI * body.Radius * body.Radius;
             float speed = body.Velocity.magnitude;
+
             if (speed > 0.01f)
             {
-                Vector3 drag = -0.5f * airDensity * dragCoefficient * area * speed * speed * body.Velocity.normalized;
-                body.Velocity += (drag / body.Mass) * dt;
+                float dragAccMag = 0.5f
+                    * airDensity
+                    * dragCoefficient
+                    * area
+                    * speed * speed
+                    / body.Mass;
+                float dv = Mathf.Min(dragAccMag * dt, speed);
+                body.Velocity = body.Velocity.normalized * (speed - dv);
             }
         }
 
-        // 3) Fricción de rodadura SOLO si está en contacto con el suelo
-        float groundThreshold = body.Radius + 0.01f;        // tolerancia de contacto
+        // 3) Fricción de rodadura sólo en horizontal
+        float groundThreshold = body.Radius + 0.01f;
         if (body.Position.y <= groundThreshold)
         {
             int idx = (int)body.CurrentSurface;
             float mu = rollingFriction[idx];
             float decel = mu * Physics.gravity.magnitude;
 
-            // Descomponemos velocidad en horizontal y vertical
-            Vector3 vHoriz = new Vector3(body.Velocity.x, 0f, body.Velocity.z);
-            float speedH = vHoriz.magnitude;
+            Vector3 vH = new Vector3(body.Velocity.x, 0f, body.Velocity.z);
+            float speedH = vH.magnitude;
             if (speedH > 0f)
             {
                 float newH = Mathf.Max(speedH - decel * dt, 0f);
-                vHoriz = vHoriz.normalized * newH;
+                vH = vH.normalized * newH;
             }
 
-            // Reconstruimos la velocidad
-            body.Velocity = new Vector3(vHoriz.x, body.Velocity.y, vHoriz.z);
+            body.Velocity = new Vector3(vH.x, body.Velocity.y, vH.z);
         }
 
         // 4) Integración de posición
@@ -117,4 +122,7 @@ public class PhysicsManager : MonoBehaviour
             }
         }
     }
+
+    public float[] RollingFriction => rollingFriction;
+    public IReadOnlyList<CollisionPlaneComponent> Planes => planes;
 }

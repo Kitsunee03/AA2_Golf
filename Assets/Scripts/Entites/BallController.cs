@@ -28,23 +28,23 @@ public class BallController : MonoBehaviour
         lr.enabled = false;
     }
 
-    private void Start() => cam = Camera.main;
+    private void Start() { cam = Camera.main; }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0)) StartDrag();
-        if (dragging && Input.GetMouseButton(0)) UpdateDrag();
-        if (dragging && Input.GetMouseButtonUp(0)) EndDrag();
+        if (Input.GetMouseButtonDown(0)) { StartDrag(); }
+        if (dragging && Input.GetMouseButton(0)) { UpdateDrag(); }
+        if (dragging && Input.GetMouseButtonUp(0)) { EndDrag(); }
     }
 
-    private void DrawPrediction(Vector3 drag)
+    private void DrawPrediction(Vector3 p_drag)
     {
         // 1) Calcula v0Vec tal como lo tienes…
-        float mag = Mathf.Clamp(drag.magnitude, 0f, maxDragDistance);
+        float mag = Mathf.Clamp(p_drag.magnitude, 0f, maxDragDistance);
         float tNorm = mag / maxDragDistance;
         float v0 = tNorm * maxLaunchSpeed;
         float theta = launchAngle * Mathf.Deg2Rad;
-        Vector3 dir = drag.normalized;
+        Vector3 dir = p_drag.normalized;
         Vector3 v0Vec = dir * (v0 * Mathf.Cos(theta))
                       + Vector3.up * (v0 * Mathf.Sin(theta));
 
@@ -58,6 +58,7 @@ public class BallController : MonoBehaviour
             lr.enabled = false;
             return;
         }
+
         float tFlight = (vy + Mathf.Sqrt(underS)) / g;
         if (tFlight <= 0f)
         {

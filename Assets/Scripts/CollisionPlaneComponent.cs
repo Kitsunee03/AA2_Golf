@@ -25,14 +25,13 @@ public class CollisionPlaneComponent : MonoBehaviour
 
     public bool IsPointInsideBounds(Vector3 worldPoint)
     {
-        // Comprueba que el punto esté dentro de los límites del plano (BoxCollider o Renderer)
+        // Comprueba que el punto esté dentro de los límites del plano (Renderer)
         Transform t = transform;
         Vector3 localPoint = t.InverseTransformPoint(worldPoint);
         Vector3 halfSize = Vector3.one;
-        if (t.TryGetComponent<BoxCollider>(out var box))
-            halfSize = box.size * 0.5f;
-        else if (t.TryGetComponent<Renderer>(out var rend))
-            halfSize = rend.bounds.size * 0.5f;
+
+        // find the half size of the collider or renderer
+        if (t.TryGetComponent(out Renderer rend)) { halfSize = rend.bounds.size * 0.5f; }
 
         return Mathf.Abs(localPoint.x) <= halfSize.x && Mathf.Abs(localPoint.z) <= halfSize.z;
     }

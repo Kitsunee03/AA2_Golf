@@ -72,13 +72,18 @@ public class PhysicsManager : MonoBehaviour
             }
         }
 
-        // 3) Fricción de rodadura sólo en horizontal
+        // 3) Fricción de rodadura sólo en horizontal (incorpora I = 2/5·m·r²)
         float groundThreshold = body.Radius + 0.01f;
         if (body.Position.y <= groundThreshold)
         {
             int idx = (int)body.CurrentSurface;
             float mu = rollingFriction[idx];
-            float decel = mu * Physics.gravity.magnitude;
+
+            // Momento de inercia de la esfera: I = 0.4·m·r²
+            float I = body.Inertia;  
+            float denom = 1f + I / (body.Mass * body.Radius * body.Radius);
+            // a = μ·g / (1 + I/(m·r²))
+            float decel = mu * Physics.gravity.magnitude / denom;
 
             Vector3 vH = new Vector3(body.Velocity.x, 0f, body.Velocity.z);
             float speedH = vH.magnitude;

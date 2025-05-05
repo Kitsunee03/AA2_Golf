@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 07a9a9609108e4b4caf4730f4f6e0761, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -138,8 +138,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6b97546e9de29428d1c26e693c32d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDragDistance: 5
-  maxLaunchSpeed: 30
+  maxDragDistance: 10
+  maxLaunchSpeed: 50
   launchAngle: 45
   predictionStepTime: 0.1
 --- !u!120 &7216801661865966118

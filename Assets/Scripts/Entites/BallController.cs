@@ -20,6 +20,8 @@ public class BallController : MonoBehaviour
     private Vector3 dragStart;
     private bool dragging;
 
+    private bool ballInMotion => phys.Velocity.magnitude > 0.1f;
+
     private void Awake()
     {
         phys = GetComponent<PhysicsObject>();
@@ -32,6 +34,8 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
+        if (ballInMotion) { return; }
+
         if (Input.GetMouseButtonDown(0)) { StartDrag(); }
         if (dragging && Input.GetMouseButton(0)) { UpdateDrag(); }
         if (dragging && Input.GetMouseButtonUp(0)) { EndDrag(); }

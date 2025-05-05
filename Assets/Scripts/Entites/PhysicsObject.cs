@@ -1,4 +1,4 @@
-// PhysicsObject.cs
+﻿// PhysicsObject.cs
 using UnityEngine;
 
 public class PhysicsObject : MonoBehaviour
@@ -12,12 +12,13 @@ public class PhysicsObject : MonoBehaviour
     [HideInInspector] public float CurrentRestitution;
 
     private Vector3 physicsPosition;
-    private int collisionCount;
-    public int CollisionCount => collisionCount;
+    private Vector3 lastPhysicsPosition;          
+    private Quaternion currentRotation = Quaternion.identity;
 
     private void Start()
     {
         physicsPosition = transform.position;
+        lastPhysicsPosition = physicsPosition;
         ApplyTransform();
 
         PhysicsManager.Instance.RegisterPhysicsObject(this);
@@ -31,7 +32,6 @@ public class PhysicsObject : MonoBehaviour
 
     public void OnCollision(CollisionPlaneComponent plane)
     {
-        collisionCount++;
         CurrentSurface = plane.Surface;
         CurrentPlaneNormal = plane.WorldNormal;
         CurrentRestitution = plane.Restitution;
@@ -39,7 +39,23 @@ public class PhysicsObject : MonoBehaviour
 
     public void ApplyTransform()
     {
+        // 1) Actualizamos la posición visual (añadiendo el offset del radio)
         transform.position = physicsPosition + Vector3.up * radius;
+
+        // 2) Calculamos desplazamiento desde el frame anterior
+        Vector3 delta = physicsPosition - lastPhysicsPosition;
+        lastPhysicsPosition = physicsPosition;
+
+        // 3) Sólo nos interesa la componente horizontal para el rodamiento
+        Vector3 deltaH = new Vector3(delta.x, 0f, delta.z);
+        float distance = deltaH.magnitude;
+        if (distance > Mathf.Epsilon)
+        {
+            Vector3 axis = Vector3.Cross(Vector3.up, deltaH.normalized);
+            float angle = distance / radius * Mathf.Rad2Deg;
+            currentRotation = Quaternion.AngleAxis(angle, axis) * currentRotation;
+            transform.rotation = currentRotation;
+        }
     }
 
     public float Mass => mass;

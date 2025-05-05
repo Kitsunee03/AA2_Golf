@@ -13,9 +13,17 @@ public class CollisionPlaneComponent : MonoBehaviour
     [SerializeField] private float restitution = 0.2f;
     [SerializeField] private SurfaceType surfaceType = SurfaceType.Grass;
 
-    private void Start()
+    [SerializeField] private GameObject iceLayer;
+    [SerializeField] private GameObject sandLayer;
+
+    private void Start() { PhysicsManager.Instance.RegisterCollisionPlane(this); }
+
+    private void OnValidate() { UpdateSurfaceLayers(); }
+
+    private void UpdateSurfaceLayers()
     {
-        PhysicsManager.Instance.RegisterCollisionPlane(this);
+        if (iceLayer != null) { iceLayer.SetActive(surfaceType == SurfaceType.Ice); }
+        if (sandLayer != null) { sandLayer.SetActive(surfaceType == SurfaceType.Sand); }
     }
 
     public Vector3 WorldNormal => transform.TransformDirection(localNormal.normalized);

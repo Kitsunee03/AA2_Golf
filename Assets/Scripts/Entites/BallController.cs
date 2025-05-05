@@ -34,6 +34,8 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R)) { ResetBall(); }
+
         if (ballInMotion) { return; }
 
         if (Input.GetMouseButtonDown(0)) { StartDrag(); }

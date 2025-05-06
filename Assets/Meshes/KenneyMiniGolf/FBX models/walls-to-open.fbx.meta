@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: colormap
-    second: {fileID: 2100000, guid: 5ce84191e3362e14ab44f205de38c57b, type: 2}
+    second: {fileID: 2100000, guid: e3622db841fa8f64b8cc2db3ebb956c7, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

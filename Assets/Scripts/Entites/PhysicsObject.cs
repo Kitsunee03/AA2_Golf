@@ -12,7 +12,7 @@ public class PhysicsObject : MonoBehaviour
     [HideInInspector] public float CurrentRestitution;
 
     private Vector3 physicsPosition;
-    private Vector3 lastPhysicsPosition;          
+    private Vector3 lastPhysicsPosition;
     private Quaternion currentRotation = Quaternion.identity;
 
     private void Start()
@@ -24,29 +24,23 @@ public class PhysicsObject : MonoBehaviour
         PhysicsManager.Instance.RegisterPhysicsObject(this);
     }
 
-    public Vector3 Position
+    public void OnCollision(SurfaceType p_surface, Vector3 p_normal, float p_restitution)
     {
-        get => physicsPosition;
-        set => physicsPosition = value;
-    }
-
-    public void OnCollision(CollisionPlaneComponent plane)
-    {
-        CurrentSurface = plane.Surface;
-        CurrentPlaneNormal = plane.WorldNormal;
-        CurrentRestitution = plane.Restitution;
+        CurrentSurface = p_surface;
+        CurrentPlaneNormal = p_normal;
+        CurrentRestitution = p_restitution;
     }
 
     public void ApplyTransform()
     {
-        // 1) Actualizamos la posición visual (añadiendo el offset del radio)
-        transform.position = physicsPosition + Vector3.up * radius;
+        // 1) Usar la normal de la superficie para posicionar correctamente la bola
+        transform.position = physicsPosition + CurrentPlaneNormal.normalized * radius;
 
-        // 2) Calculamos desplazamiento desde el frame anterior
+        // 2) Calcular desplazamiento desde frame anterior
         Vector3 delta = physicsPosition - lastPhysicsPosition;
         lastPhysicsPosition = physicsPosition;
 
-        // 3) Sólo nos interesa la componente horizontal para el rodamiento
+        // 3) Rodamiento solo horizontal
         Vector3 deltaH = new Vector3(delta.x, 0f, delta.z);
         float distance = deltaH.magnitude;
         if (distance > Mathf.Epsilon)
@@ -58,7 +52,10 @@ public class PhysicsObject : MonoBehaviour
         }
     }
 
+    #region Accessors
     public float Mass => mass;
     public float Radius => radius;
     public float Inertia => 0.4f * mass * radius * radius;
+    public Vector3 Position { get => physicsPosition; set => physicsPosition = value; }
+    #endregion
 }

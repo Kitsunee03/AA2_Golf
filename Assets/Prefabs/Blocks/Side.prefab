@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 3729701475805522508}
   - component: {fileID: 382149224313744115}
   - component: {fileID: 2161926407192578960}
-  - component: {fileID: 26609116974973133}
+  - component: {fileID: 8158023036824406651}
   m_Layer: 0
   m_Name: sideMesh
   m_TagString: Untagged
@@ -284,7 +284,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &26609116974973133
+--- !u!114 &8158023036824406651
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6287394995747542109}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38a7b2cf2990bea40ac0401577d03728, type: 3}
+  m_Script: {fileID: 11500000, guid: 4209bbc8a65ffd74daa0a14d527d5865, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   restitution: 0.2

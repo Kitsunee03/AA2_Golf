@@ -138,9 +138,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b6b97546e9de29428d1c26e693c32d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDragDistance: 10
-  maxLaunchSpeed: 50
-  launchAngle: 45
+  maxDragDistance: 20
+  maxLaunchSpeed: 20
+  maxLaunchAngle: 15
   predictionStepTime: 0.1
 --- !u!120 &7216801661865966118
 LineRenderer:

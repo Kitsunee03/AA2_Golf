@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(PhysicsObject), typeof(LineRenderer))]
@@ -7,6 +7,8 @@ public class BallController : MonoBehaviour
     private PhysicsObject phys;
     private Camera cam;
     private LineRenderer lr;
+
+    [SerializeField] private float heightLimit = -10f; // height limit for the ball to reset
 
     [Header("Force Settings")]
     [SerializeField] private float maxDragDistance = 5f;
@@ -34,7 +36,7 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R)) { ResetBall(); }
+        if(transform.position.y < heightLimit) { ResetBall(); }
 
         if (ballInMotion) { return; }
 

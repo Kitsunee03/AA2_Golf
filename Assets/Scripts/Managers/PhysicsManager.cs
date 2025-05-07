@@ -6,11 +6,9 @@ public class PhysicsManager : MonoBehaviour
     public static PhysicsManager Instance;
 
     [Header("Global Physics Parameters")]
-    [SerializeField, Tooltip("Air density (kg/m³)")] private float airDensity = 1.225f;
-    [SerializeField, Tooltip("Drag coefficient for sphere")] private float dragCoefficient = 0.47f;
-
-    [Header("Rolling Friction Coefficients (0=Grass,1=Ice,2=Sand)")]
-    [SerializeField] private float[] rollingFriction = { 0.4f, 0.1f, 0.6f };
+    private readonly float airDensity = 1.225f;
+    private readonly float dragCoefficient = 0.47f;
+    private readonly float[] rollingFriction = { 0.8f, 0.2f, 1.2f };
 
     private List<PhysicsObject> bodies = new();
     private List<MeshCollisionComponent> meshes = new();
@@ -163,7 +161,4 @@ public class PhysicsManager : MonoBehaviour
 
         return (u >= 0) && (v >= 0) && (u + v <= 1);
     }
-
-
-    public float[] RollingFriction => rollingFriction;
 }

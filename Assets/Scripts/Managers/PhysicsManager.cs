@@ -101,30 +101,34 @@ public class PhysicsManager : MonoBehaviour
     private void HandleCollisions(PhysicsObject p_body)
     {
         bool hasCollided = false;
-        // mesh collision
+
         foreach (MeshCollisionComponent mesh in meshes)
         {
+            if (mesh == null) { continue; } // mesh destroyed check
+
+            // mesh near check
+            float meshDistance = Vector3.Distance(p_body.Position, mesh.Center);
+            float maxRange = mesh.BoundingRadius + p_body.Radius; // precomputed mesh bounding radius
+            if (meshDistance > maxRange) { continue; } // mesh too far, skip
+
+            // mesh triangles iteration
             foreach ((Vector3 a, Vector3 b, Vector3 c) in mesh.GetWorldTriangles())
             {
                 Vector3 n = Vector3.Cross(b - a, c - a).normalized;
                 float dist = Vector3.Dot(p_body.Position - a, n);
 
-                // check if the body is above the plane
-                if (Mathf.Abs(dist) > p_body.Radius) { continue; }
+                if (Mathf.Abs(dist) > p_body.Radius)
+                    continue;
 
-                // projected body position
                 Vector3 p = p_body.Position - n * dist;
 
-                // inside triangle check
                 if (IsPointInTriangle(p, a, b, c))
                 {
-                    // correct normal direction if the ball comes from the other side
-                    if (Vector3.Dot(p_body.Velocity, n) > 0f) { n = -n; }
+                    if (Vector3.Dot(p_body.Velocity, n) > 0f)
+                        n = -n;
 
-                    // correct position
                     p_body.Position += n * (p_body.Radius - Mathf.Abs(dist));
 
-                    // normal component bounce
                     float vN = Vector3.Dot(p_body.Velocity, n);
                     if (vN < 0f)
                     {
@@ -134,14 +138,15 @@ public class PhysicsManager : MonoBehaviour
                         p_body.Velocity = vTangent + vNormalOut;
                     }
 
-                    // register collision
                     p_body.OnCollision(mesh.Surface, n, mesh.Restitution);
                     hasCollided = true;
                 }
             }
-            p_body.IsGrounded = hasCollided;
         }
+
+        p_body.IsGrounded = hasCollided;
     }
+
 
     private bool IsPointInTriangle(Vector3 p_point, Vector3 p_a, Vector3 p_b, Vector3 p_c)
     {

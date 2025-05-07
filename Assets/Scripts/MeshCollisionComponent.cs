@@ -11,6 +11,9 @@ public class MeshCollisionComponent : MonoBehaviour
     private Vector3[] localVertices;
     private MeshFilter meshFilter;
 
+    private Vector3 center;
+    private float boundingRadius;
+
     [Header("Mesh parameters")]
     [Tooltip("Coeficiente de restitución: 0.2 = inelástico, 0.8 = elástico")]
     [SerializeField] private float restitution = 0.2f;
@@ -29,6 +32,19 @@ public class MeshCollisionComponent : MonoBehaviour
         worldVertices = new Vector3[localVertices.Length];
         Transform meshTransform = meshFilter.transform;
         for (int i = 0; i < localVertices.Length; i++) { worldVertices[i] = meshTransform.TransformPoint(localVertices[i]); }
+
+        // center calculation
+        center = Vector3.zero;
+        for (int i = 0; i < worldVertices.Length; i++) { center += worldVertices[i]; }
+        center /= worldVertices.Length;
+
+        // farthest vertex from center
+        boundingRadius = 0f;
+        for (int i = 0; i < worldVertices.Length; i++)
+        {
+            float dist = Vector3.Distance(center, worldVertices[i]);
+            if (dist > boundingRadius) { boundingRadius = dist; }
+        }
     }
 
     private void Start() { PhysicsManager.Instance.RegisterMeshCollider(this); }
@@ -80,6 +96,10 @@ public class MeshCollisionComponent : MonoBehaviour
         }
     }
 
+    #region Accessors
     public SurfaceType Surface => surfaceType;
     public float Restitution => Mathf.Clamp01(restitution);
+    public Vector3 Center => center;
+    public float BoundingRadius => boundingRadius;
+    #endregion
 }

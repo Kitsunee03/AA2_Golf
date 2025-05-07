@@ -10392,6 +10392,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: windmill
       objectReference: {fileID: 0}
+    - target: {fileID: 2394010018345736529, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.99997914
+      objectReference: {fileID: 0}
+    - target: {fileID: 2394010018345736529, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2394010018345736529, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.006457672
+      objectReference: {fileID: 0}
+    - target: {fileID: 2394010018345736529, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0.74
+      objectReference: {fileID: 0}
     - target: {fileID: 4630957511536181541, guid: 5adec1dc40da872409671260975cc50d, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -10409,6 +10425,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5adec1dc40da872409671260975cc50d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7342292307500601898}
+    - targetCorrespondingSourceObject: {fileID: -5148914591892728797, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2651514272416886978}
   m_SourcePrefab: {fileID: 100100000, guid: 5adec1dc40da872409671260975cc50d, type: 3}
 --- !u!4 &5824978120505843296 stripped
 Transform:
@@ -10436,6 +10455,25 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 5791255830938312812}
   sandLayer: {fileID: 5451340913245851060}
+--- !u!1 &8059088956961697192 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5148914591892728797, guid: 5adec1dc40da872409671260975cc50d, type: 3}
+  m_PrefabInstance: {fileID: 6295121610430036363}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2651514272416886978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8059088956961697192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 769b7ec85a42e884a8dc7c7f41380c08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 90
+  rotationAxis: {x: 0, y: 0, z: 1}
 --- !u!1001 &6942125716219424566
 PrefabInstance:
   m_ObjectHideFlags: 0

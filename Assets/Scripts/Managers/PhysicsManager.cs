@@ -52,7 +52,7 @@ public class PhysicsManager : MonoBehaviour
         p_body.Velocity += Physics.gravity * p_dt;
 
         // 2) air resistance (if y > 1m)
-        if (p_body.Position.y > 1f)
+        if (!p_body.IsGrounded && p_body.Position.y > 1f)
         {
             float area = Mathf.PI * p_body.Radius * p_body.Radius;
             float speed = p_body.Velocity.magnitude;
@@ -71,8 +71,7 @@ public class PhysicsManager : MonoBehaviour
         }
 
         // 3) frictional break (I = 2/5·m·r²)
-        float groundThreshold = p_body.Radius + 0.01f;
-        if (p_body.Position.y <= groundThreshold)
+        if (p_body.IsGrounded)
         {
             int idx = (int)p_body.CurrentSurface;
             float mu = rollingFriction[idx];
@@ -101,6 +100,7 @@ public class PhysicsManager : MonoBehaviour
 
     private void HandleCollisions(PhysicsObject p_body)
     {
+        bool hasCollided = false;
         // mesh collision
         foreach (MeshCollisionComponent mesh in meshes)
         {
@@ -136,8 +136,10 @@ public class PhysicsManager : MonoBehaviour
 
                     // register collision
                     p_body.OnCollision(mesh.Surface, n, mesh.Restitution);
+                    hasCollided = true;
                 }
             }
+            p_body.IsGrounded = hasCollided;
         }
     }
 

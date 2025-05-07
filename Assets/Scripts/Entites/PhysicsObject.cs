@@ -10,6 +10,7 @@ public class PhysicsObject : MonoBehaviour
     [HideInInspector] public SurfaceType CurrentSurface;
     [HideInInspector] public Vector3 CurrentPlaneNormal = Vector3.up;
     [HideInInspector] public float CurrentRestitution;
+    [HideInInspector] public bool IsGrounded;
 
     private Vector3 physicsPosition;
     private Vector3 lastPhysicsPosition;
@@ -29,6 +30,8 @@ public class PhysicsObject : MonoBehaviour
         CurrentSurface = p_surface;
         CurrentPlaneNormal = p_normal;
         CurrentRestitution = p_restitution;
+
+        IsGrounded = true;
     }
 
     public void ApplyTransform()

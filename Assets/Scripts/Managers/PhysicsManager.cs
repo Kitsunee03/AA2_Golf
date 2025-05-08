@@ -110,7 +110,12 @@ public class PhysicsManager : MonoBehaviour
             // mesh near check
             float meshDistance = Vector3.Distance(p_body.Position, mesh.Center);
             float maxRange = mesh.BoundingRadius + p_body.Radius; // precomputed mesh bounding radius
-            if (meshDistance > maxRange) { continue; } // mesh too far, skip
+            if (meshDistance > maxRange) // mesh too far, skip
+            {
+                if (GameManager.Instance.CurrentLevel.IsGhostLevel) { mesh.gameObject.SetActive(false); }
+                continue;
+            }
+            else if (GameManager.Instance.CurrentLevel.IsGhostLevel) { mesh.gameObject.SetActive(true); }
 
             // mesh triangles iteration
             int triIndex = 0;
@@ -119,7 +124,7 @@ public class PhysicsManager : MonoBehaviour
                 Vector3 n = Vector3.Cross(b - a, c - a).normalized;
                 float dist = Vector3.Dot(p_body.Position - a, n);
 
-                if (Mathf.Abs(dist) > p_body.Radius)
+                if (Mathf.Abs(dist) > p_body.Radius) // too far, skip
                 {
                     triIndex++;
                     continue;
@@ -128,6 +133,8 @@ public class PhysicsManager : MonoBehaviour
                 Vector3 p = p_body.Position - n * dist;
                 if (IsPointInTriangle(p, a, b, c))
                 {
+                    // !collision found!:
+
                     if (Vector3.Dot(p_body.Velocity, n) > 0f) { n = -n; }
 
                     p_body.Position += n * (p_body.Radius - Mathf.Abs(dist));
@@ -159,7 +166,6 @@ public class PhysicsManager : MonoBehaviour
 
         p_body.IsGrounded = hasCollided;
     }
-
 
     private bool IsPointInTriangle(Vector3 p_point, Vector3 p_a, Vector3 p_b, Vector3 p_c)
     {

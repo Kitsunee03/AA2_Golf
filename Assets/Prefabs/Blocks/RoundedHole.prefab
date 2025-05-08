@@ -30,7 +30,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5427779615567865131}
+  m_Father: {fileID: 7494983705352293971}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8503190729170644009
@@ -112,9 +112,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7494983705352293971}
-  - {fileID: 8295695679088436365}
-  - {fileID: 3665154652533442848}
-  - {fileID: 3416588900575491532}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -148,7 +145,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5427779615567865131}
+  m_Father: {fileID: 7494983705352293971}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &586421625638825453
@@ -259,7 +256,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e0d434b73c96bb4baa97f207660450e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3665154652533442848}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e0d434b73c96bb4baa97f207660450e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3416588900575491532}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7e0d434b73c96bb4baa97f207660450e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8295695679088436365}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7e0d434b73c96bb4baa97f207660450e, type: 3}
       insertIndex: -1
@@ -298,7 +304,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5427779615567865131}
+    m_TransformParent: {fileID: 7494983705352293971}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: bc6f7f19bb5b73944a90f0bcf7c8d0e8, type: 3}
       propertyPath: m_RootOrder

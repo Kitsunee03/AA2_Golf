@@ -30,7 +30,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 486168699482665836}
+  m_Father: {fileID: 4170412474506267502}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2222643159038948625
@@ -113,7 +113,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8417613199108842614}
+  - {fileID: 7493720991970703250}
   m_Father: {fileID: 486168699482665836}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -183,6 +185,7 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 3548930851803306382}
   sandLayer: {fileID: 7827946337943906202}
+  holeTriangles: 
 --- !u!1 &7827946337943906202
 GameObject:
   m_ObjectHideFlags: 0
@@ -213,7 +216,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 486168699482665836}
+  m_Father: {fileID: 4170412474506267502}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1408964850140633164
@@ -295,8 +298,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4170412474506267502}
-  - {fileID: 8417613199108842614}
-  - {fileID: 7493720991970703250}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

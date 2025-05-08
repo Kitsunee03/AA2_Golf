@@ -30,7 +30,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8793401338651247451}
+  m_Father: {fileID: 5487167124207599352}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1742179307386132672
@@ -112,8 +112,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5487167124207599352}
-  - {fileID: 6887317920561036652}
-  - {fileID: 3547373134950153273}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -147,7 +145,7 @@ Transform:
   m_LocalScale: {x: 20, y: 0.01, z: 20}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8793401338651247451}
+  m_Father: {fileID: 5487167124207599352}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1341291618369523898
@@ -258,7 +256,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c3e8da39efbca74cbfc2a18e17e6c3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6887317920561036652}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c3e8da39efbca74cbfc2a18e17e6c3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3547373134950153273}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2c3e8da39efbca74cbfc2a18e17e6c3a, type: 3}
       insertIndex: -1
@@ -285,6 +289,7 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 8544213393035475136}
   sandLayer: {fileID: 5554032792007229106}
+  holeTriangles: 
 --- !u!4 &5487167124207599352 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2c3e8da39efbca74cbfc2a18e17e6c3a, type: 3}

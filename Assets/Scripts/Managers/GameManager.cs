@@ -7,7 +7,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject[] levelPrefabs;
     [SerializeField] private Transform levelParent;
-    private GameObject currentLevel;
+    [SerializeField] private bool cheatsEnabled = false;
+
+    private Level currentLevel;
     private int currentLevelIndex = -1;
     private BallController ball;
 
@@ -29,6 +31,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (!cheatsEnabled) { return; }
         Cheats();
     }
 
@@ -40,9 +43,12 @@ public class GameManager : MonoBehaviour
 
         if (currentLevelIndex < levelPrefabs.Length)
         {
-            if (currentLevel != null) { Destroy(currentLevel); }
+            // destroy current level -> instantiate new one
+            if (currentLevel != null) { Destroy(currentLevel.gameObject); }
+            currentLevel = Instantiate(levelPrefabs[currentLevelIndex], levelParent).GetComponent<Level>();
 
-            currentLevel = Instantiate(levelPrefabs[currentLevelIndex], levelParent);
+            // init level
+            UIManager.Instance.UpdateLevelName(currentLevel.LevelName);
             ball.ResetBall();
         }
         else
@@ -60,4 +66,11 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R)) { ball.ResetBall(); }
     }
+
+    public void ToggleCheats() { cheatsEnabled = !cheatsEnabled; }
+
+    #region Accessors
+    public bool CheatsEnabled { get { return cheatsEnabled; } }
+    public Level CurrentLevel { get { return currentLevel; } }
+    #endregion
 }

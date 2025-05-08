@@ -36,20 +36,26 @@ public class PhysicsObject : MonoBehaviour
 
     public void ApplyTransform()
     {
-        // 1) Usar la normal de la superficie para posicionar correctamente la bola
+        // 1) Use the surface normal to correctly position the ball
         transform.position = physicsPosition + CurrentPlaneNormal.normalized * radius;
 
-        // 2) Calcular desplazamiento desde frame anterior
+        // 2) Calculate offset from previous frame
         Vector3 delta = physicsPosition - lastPhysicsPosition;
         lastPhysicsPosition = physicsPosition;
 
-        // 3) Rodamiento solo horizontal
-        Vector3 deltaH = new Vector3(delta.x, 0f, delta.z);
-        float distance = deltaH.magnitude;
+        // 3) Rolling on the inclined plane
+        Vector3 deltaPlane = Vector3.ProjectOnPlane(delta, CurrentPlaneNormal);
+        float distance = deltaPlane.magnitude;
+
         if (distance > Mathf.Epsilon)
         {
-            Vector3 axis = Vector3.Cross(Vector3.up, deltaH.normalized);
+            // Axis perpendicular to the plane of movement: cross (normal, forward direction)
+            Vector3 axis = Vector3.Cross(CurrentPlaneNormal, deltaPlane.normalized);
+
+            // Angle according to Δθ = s/r (converted to degrees)
             float angle = distance / radius * Mathf.Rad2Deg;
+
+            // We accumulate the rotation
             currentRotation = Quaternion.AngleAxis(angle, axis) * currentRotation;
             transform.rotation = currentRotation;
         }

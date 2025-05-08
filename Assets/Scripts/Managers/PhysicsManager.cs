@@ -8,7 +8,7 @@ public class PhysicsManager : MonoBehaviour
     [Header("Global Physics Parameters")]
     private readonly float airDensity = 1.225f;
     private readonly float dragCoefficient = 0.47f;
-    private readonly float[] rollingFriction = { 0.8f, 0.2f, 1.2f };
+    private readonly float[] rollingFriction = { 1.6f, 0.4f, 2.4f };
 
     private List<PhysicsObject> bodies = new();
     private List<MeshCollisionComponent> meshes = new();
@@ -46,56 +46,60 @@ public class PhysicsManager : MonoBehaviour
         }
     }
 
-    private void IntegratePhysics(PhysicsObject p_body, float p_dt)
+    private void IntegratePhysics(PhysicsObject body, float dt)
     {
-        // 1) gravity
-        p_body.Velocity += Physics.gravity * p_dt;
+        Vector3 g = Physics.gravity;                          
+        Vector3 n = body.CurrentPlaneNormal.normalized;       
 
-        // 2) air resistance (if y > 1m)
-        if (!p_body.IsGrounded && p_body.Position.y > 1f)
+        if (body.IsGrounded)
         {
-            float area = Mathf.PI * p_body.Radius * p_body.Radius;
-            float speed = p_body.Velocity.magnitude;
+            // 1) Decompose g into parallel and normal to the plane
+            //    gNormal   = (g·n) n → Fₙ = mg cosθ
+            Vector3 gNormal = Vector3.Dot(g, n) * n;
+            //    gParallel = g – gNormal → F∥ = mg sinθ
+            Vector3 gParallel = g - gNormal;
+            body.Velocity += gParallel * dt;
 
-            if (speed > 0.01f)
+            // 2) Rolling friction with Fn = mg cosθ
+            int idx = (int)body.CurrentSurface;
+            float mu = rollingFriction[idx];              // coefficient µ according to surface area           
+
+            // calculate cosθ for the normal component
+            float cosTheta = Mathf.Abs(Vector3.Dot(g.normalized, n));
+            // a_rod = µ·g·cosθ / (1 + I/(m·r²))
+            float aRod = mu * g.magnitude * cosTheta;
+
+            // 3) Braking only the component parallel to the plane (rolling)
+            Vector3 vPar = Vector3.ProjectOnPlane(body.Velocity, n);
+            float speed = vPar.magnitude;
+            if (speed > 0f)
+                vPar = vPar.normalized * Mathf.Max(speed - aRod * dt, 0f);
+
+            // preserve the normal component intact
+            float vN = Vector3.Dot(body.Velocity, n);
+            body.Velocity = vPar + n * vN;
+        }
+        else
+        {
+            // 4) In air: vertical gravity + air resistance if y>1m
+            body.Velocity += g * dt;
+            if (body.Position.y > 1f)
             {
-                float dragAccMag = 0.5f
-                    * airDensity
-                    * dragCoefficient
-                    * area
-                    * speed * speed
-                    / p_body.Mass;
-                float dv = Mathf.Min(dragAccMag * p_dt, speed);
-                p_body.Velocity = p_body.Velocity.normalized * (speed - dv);
+                float area = Mathf.PI * body.Radius * body.Radius;
+                float speedAir = body.Velocity.magnitude;
+                if (speedAir > 0.01f)
+                {
+                    float dragAcc = 0.5f * airDensity * dragCoefficient
+                                  * area * speedAir * speedAir
+                                  / body.Mass;
+                    float dv = Mathf.Min(dragAcc * dt, speedAir);
+                    body.Velocity = body.Velocity.normalized * (speedAir - dv);
+                }
             }
         }
 
-        // 3) frictional break (I = 2/5·m·r²)
-        if (p_body.IsGrounded)
-        {
-            int idx = (int)p_body.CurrentSurface;
-            float mu = rollingFriction[idx];
-
-            // body inertia: I = 0.4·m·r²
-            float I = p_body.Inertia;  
-            float denom = 1f + I / (p_body.Mass * p_body.Radius * p_body.Radius);
-            
-            // a = μ·g / (1 + I/(m·r²))
-            float decel = mu * Physics.gravity.magnitude / denom;
-
-            Vector3 vH = new(p_body.Velocity.x, 0f, p_body.Velocity.z);
-            float speedH = vH.magnitude;
-            if (speedH > 0f)
-            {
-                float newH = Mathf.Max(speedH - decel * p_dt, 0f);
-                vH = vH.normalized * newH;
-            }
-
-            p_body.Velocity = new Vector3(vH.x, p_body.Velocity.y, vH.z);
-        }
-
-        // 4) new position
-        p_body.Position += p_body.Velocity * p_dt;
+        // 5) Integrate contact point position
+        body.Position += body.Velocity * dt;
     }
 
     private void HandleCollisions(PhysicsObject p_body)

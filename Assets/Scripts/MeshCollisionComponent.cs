@@ -22,6 +22,9 @@ public class MeshCollisionComponent : MonoBehaviour
     [SerializeField] private GameObject iceLayer;
     [SerializeField] private GameObject sandLayer;
 
+    [Tooltip("if not hole, leave empty")]
+    [SerializeField] private List<int> holeTriangles = new();
+
     private void Awake()
     {
         meshFilter = GetComponent<MeshFilter>();
@@ -73,15 +76,16 @@ public class MeshCollisionComponent : MonoBehaviour
         if (!Application.isPlaying) { return; } // only in play mode
         if (worldVertices == null || triangles == null) { return; }
 
-        Gizmos.color = Color.cyan;
+        GUIStyle style = new();
+        style.normal.textColor = Color.red;
 
         for (int i = 0; i < triangles.Length; i += 3)
         {
             // draw triangles
+            Gizmos.color = Color.cyan;
             Vector3 a = worldVertices[triangles[i]];
             Vector3 b = worldVertices[triangles[i + 1]];
             Vector3 c = worldVertices[triangles[i + 2]];
-
             Gizmos.DrawLine(a, b);
             Gizmos.DrawLine(b, c);
             Gizmos.DrawLine(c, a);
@@ -92,7 +96,8 @@ public class MeshCollisionComponent : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(center, normal * 0.3f);
 
-            Gizmos.color = Color.cyan;
+            // draw triangle number
+            UnityEditor.Handles.Label(center, (i / 3).ToString(), style);
         }
     }
 
@@ -101,5 +106,6 @@ public class MeshCollisionComponent : MonoBehaviour
     public float Restitution => Mathf.Clamp01(restitution);
     public Vector3 Center => center;
     public float BoundingRadius => boundingRadius;
+    public bool IsHoleTriangle(int p_triangleIndex) { return holeTriangles.Contains(p_triangleIndex); }
     #endregion
 }

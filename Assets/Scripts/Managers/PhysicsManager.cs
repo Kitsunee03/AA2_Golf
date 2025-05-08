@@ -15,8 +15,9 @@ public class PhysicsManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null) { Instance = this; return; }
+
+        Destroy(gameObject);
     }
 
     #region Object registration
@@ -49,39 +50,35 @@ public class PhysicsManager : MonoBehaviour
     private void IntegratePhysics(PhysicsObject body, float dt)
     {
         Vector3 g = Physics.gravity;                          
-        Vector3 n = body.CurrentPlaneNormal.normalized;       
+        Vector3 n = body.CurrentPlaneNormal.normalized;
 
-        if (body.IsGrounded)
+        if (body.IsGrounded) // ground physics
         {
             // 1) Decompose g into parallel and normal to the plane
-            //    gNormal   = (g·n) n → Fₙ = mg cosθ
-            Vector3 gNormal = Vector3.Dot(g, n) * n;
-            //    gParallel = g – gNormal → F∥ = mg sinθ
-            Vector3 gParallel = g - gNormal;
+            Vector3 gNormal = Vector3.Dot(g, n) * n;    // gNormal = (g·n) n → Fₙ = mg cosθ
+            Vector3 gParallel = g - gNormal;            // gParallel = g – gNormal → F∥ = mg sinθ
             body.Velocity += gParallel * dt;
 
             // 2) Rolling friction with Fn = mg cosθ
             int idx = (int)body.CurrentSurface;
-            float mu = rollingFriction[idx];              // coefficient µ according to surface area           
+            float mu = rollingFriction[idx]; // coefficient µ according to surface area           
 
             // calculate cosθ for the normal component
             float cosTheta = Mathf.Abs(Vector3.Dot(g.normalized, n));
-            // a_rod = µ·g·cosθ / (1 + I/(m·r²))
-            float aRod = mu * g.magnitude * cosTheta;
+            float aRod = mu * g.magnitude * cosTheta; // a_rod = µ·g·cosθ / (1 + I/(m·r²))
 
-            // 3) Braking only the component parallel to the plane (rolling)
+            // 3) braking only the component parallel to the plane (rolling)
             Vector3 vPar = Vector3.ProjectOnPlane(body.Velocity, n);
             float speed = vPar.magnitude;
-            if (speed > 0f)
-                vPar = vPar.normalized * Mathf.Max(speed - aRod * dt, 0f);
+            if (speed > 0f) { vPar = vPar.normalized * Mathf.Max(speed - aRod * dt, 0f); }
 
-            // preserve the normal component intact
+            // 4) preserve the normal component intact
             float vN = Vector3.Dot(body.Velocity, n);
             body.Velocity = vPar + n * vN;
         }
-        else
+        else // in air physics
         {
-            // 4) In air: vertical gravity + air resistance if y>1m
+            // 1) vertical gravity + air resistance if y>1m
             body.Velocity += g * dt;
             if (body.Position.y > 1f)
             {
@@ -98,7 +95,7 @@ public class PhysicsManager : MonoBehaviour
             }
         }
 
-        // 5) Integrate contact point position
+        // 2) Integrate contact point position
         body.Position += body.Velocity * dt;
     }
 
@@ -116,20 +113,22 @@ public class PhysicsManager : MonoBehaviour
             if (meshDistance > maxRange) { continue; } // mesh too far, skip
 
             // mesh triangles iteration
+            int triIndex = 0;
             foreach ((Vector3 a, Vector3 b, Vector3 c) in mesh.GetWorldTriangles())
             {
                 Vector3 n = Vector3.Cross(b - a, c - a).normalized;
                 float dist = Vector3.Dot(p_body.Position - a, n);
 
                 if (Mathf.Abs(dist) > p_body.Radius)
+                {
+                    triIndex++;
                     continue;
+                }
 
                 Vector3 p = p_body.Position - n * dist;
-
                 if (IsPointInTriangle(p, a, b, c))
                 {
-                    if (Vector3.Dot(p_body.Velocity, n) > 0f)
-                        n = -n;
+                    if (Vector3.Dot(p_body.Velocity, n) > 0f) { n = -n; }
 
                     p_body.Position += n * (p_body.Radius - Mathf.Abs(dist));
 
@@ -138,13 +137,23 @@ public class PhysicsManager : MonoBehaviour
                     {
                         Vector3 vNormal = vN * n;
                         Vector3 vTangent = p_body.Velocity - vNormal;
-                        Vector3 vNormalOut = -vNormal * mesh.Restitution;
+                        Vector3 vNormalOut = -vNormal * mesh.Restitution; // restitution coefficient application
                         p_body.Velocity = vTangent + vNormalOut;
                     }
 
-                    p_body.OnCollision(mesh.Surface, n, mesh.Restitution);
+                    p_body.OnCollision(mesh.Surface, n);
+
+                    // hole triangle check
+                    if (mesh.IsHoleTriangle(triIndex) && !p_body.ObjectIsInMotion && p_body.IsGrounded)
+                    {
+                        Debug.Log("Enter hole");
+                        GameManager.Instance.LoadLevel();
+                    }
+
                     hasCollided = true;
                 }
+
+                triIndex++;
             }
         }
 
@@ -165,7 +174,7 @@ public class PhysicsManager : MonoBehaviour
         float d21 = Vector3.Dot(v2, v1);
 
         float denom = d00 * d11 - d01 * d01;
-        if (Mathf.Abs(denom) < 1e-6f) { return false; } // invalid triangle check
+        if (Mathf.Abs(denom) < 1e-6f) { return false; } // invalid triangle check (prevent Unity doing weird things)
 
         float u = (d11 * d20 - d01 * d21) / denom;
         float v = (d00 * d21 - d01 * d20) / denom;

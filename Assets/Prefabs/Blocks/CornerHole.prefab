@@ -100,6 +100,7 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 2995631609178403334}
   sandLayer: {fileID: 3489339746876717135}
+  holeTriangles: 0a0000000b0000000c0000000d0000000e0000000f0000001c0000001d0000001e0000001f000000210000002000000022000000230000002400000025000000260000002700000028000000290000002a0000002b000000
 --- !u!1 &2995631609178403334
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,6 +397,7 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 0}
   sandLayer: {fileID: 0}
+  holeTriangles: 
 --- !u!4 &4121523609866686483 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e6b26d3dbc8331644a16ad02e3abfbb7, type: 3}
@@ -503,6 +505,7 @@ MonoBehaviour:
   surfaceType: 0
   iceLayer: {fileID: 0}
   sandLayer: {fileID: 0}
+  holeTriangles: 
 --- !u!1001 &6585318321315039070
 PrefabInstance:
   m_ObjectHideFlags: 0

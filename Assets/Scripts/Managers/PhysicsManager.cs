@@ -75,6 +75,11 @@ public class PhysicsManager : MonoBehaviour
             // 4) preserve the normal component intact
             float vN = Vector3.Dot(body.Velocity, n);
             body.Velocity = vPar + n * vN;
+
+            // 5) calculate angular velocity 
+            Vector3 vParFinal = Vector3.ProjectOnPlane(body.Velocity, n);
+            float linearSpeed = vParFinal.magnitude;
+            body.AngularVelocity = linearSpeed / body.Radius;
         }
         else // in air physics
         {

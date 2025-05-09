@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2d4906e5dedcf49888f2257990f04d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mass: 0.02
+  mass: 3.5
   radius: 0.25
 --- !u!114 &4610008045852824673
 MonoBehaviour:

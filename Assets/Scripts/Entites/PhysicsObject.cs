@@ -9,6 +9,7 @@ public class PhysicsObject : MonoBehaviour
     private SurfaceType currentSurface;
     private Vector3 currentPlaneNormal = Vector3.up;
     private bool isGrounded;
+    private float angularVelocity = 0f;
 
     private Vector3 physicsPosition;
     private Vector3 lastPhysicsPosition;
@@ -21,6 +22,12 @@ public class PhysicsObject : MonoBehaviour
         ApplyTransform();
 
         PhysicsManager.Instance.RegisterPhysicsObject(this);
+    }
+
+    public float AngularVelocity
+    {
+        get => angularVelocity;
+        set => angularVelocity = value;
     }
 
     public void OnCollision(SurfaceType p_surface, Vector3 p_normal)
@@ -49,10 +56,8 @@ public class PhysicsObject : MonoBehaviour
             // Axis perpendicular to the plane of movement: cross (normal, forward direction)
             Vector3 axis = Vector3.Cross(currentPlaneNormal, deltaPlane.normalized);
 
-            // Angle according to Δθ = s/r (converted to degrees)
-            float angle = distance / radius * Mathf.Rad2Deg;
+            float angle = angularVelocity * Time.fixedDeltaTime * Mathf.Rad2Deg;
 
-            // We accumulate the rotation
             currentRotation = Quaternion.AngleAxis(angle, axis) * currentRotation;
             transform.rotation = currentRotation;
         }

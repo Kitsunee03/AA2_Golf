@@ -65,7 +65,7 @@ public class PhysicsManager : MonoBehaviour
 
             // calculate cosθ for the normal component
             float cosTheta = Mathf.Abs(Vector3.Dot(g.normalized, n));
-            float aRod = mu * g.magnitude * cosTheta; // a_rod = µ·g·cosθ / (1 + I/(m·r²))
+            float aRod = (mu * g.magnitude * cosTheta) / (1f + body.Inertia / (body.Mass * body.Radius * body.Radius));
 
             // 3) braking only the component parallel to the plane (rolling)
             Vector3 vPar = Vector3.ProjectOnPlane(body.Velocity, n);

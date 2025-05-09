@@ -13,6 +13,7 @@ public class BallController : MonoBehaviour
     [Header("Force Settings")]
     [SerializeField] private float maxDragDistance = 5f;
     [SerializeField] private float maxLaunchSpeed = 70f;
+    [SerializeField] private float maxLaunchForce = 100f;
     [SerializeField, Tooltip("Maximum launch angle (degrees)")]
     private float maxLaunchAngle = 15f;
 
@@ -75,22 +76,22 @@ public class BallController : MonoBehaviour
     private void EndDrag()
     {
         Vector3 delta = dragStart - GetMouseWorldPos();
+
         // 1) Drag magnitude [0…maxDragDistance]
         float mag = Mathf.Clamp(delta.magnitude, 0f, maxDragDistance);
-        // 2) Interpolator t [0…1]
         float t = mag / maxDragDistance;
-        // 3) Initial velocity v0 [0…maxLaunchSpeed]
-        float v0 = t * maxLaunchSpeed;
 
-        // Angular direction
-        float angle = t * maxLaunchAngle;   
+        // 2) Direction and angle
+        float angle = t * maxLaunchAngle;
         float rad = angle * Mathf.Deg2Rad;
         Vector3 dir = delta.normalized;
-        // Horizontal and vertical components according to angle
-        Vector3 v0Vec = dir * (v0 * Mathf.Cos(rad))
-                      + Vector3.up * (v0 * Mathf.Sin(rad));
 
-        PhysicsManager.Instance.ApplyForce(phys, v0Vec * phys.Mass);
+        // 3) Shooting force
+        float forceMagnitude = t * maxLaunchForce; 
+        Vector3 force = dir * (forceMagnitude * Mathf.Cos(rad))
+                      + Vector3.up * (forceMagnitude * Mathf.Sin(rad));
+
+        PhysicsManager.Instance.ApplyForce(phys, force);
         dragging = false;
         lr.enabled = false;
     }

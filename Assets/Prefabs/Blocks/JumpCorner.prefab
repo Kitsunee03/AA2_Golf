@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4209bbc8a65ffd74daa0a14d527d5865, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  restitution: 0.2
+  restitution: 0.4
   surfaceType: 0
   iceLayer: {fileID: 2288476136177151133}
   sandLayer: {fileID: 783873317940824955}

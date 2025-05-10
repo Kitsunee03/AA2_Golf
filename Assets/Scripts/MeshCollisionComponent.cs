@@ -76,8 +76,10 @@ public class MeshCollisionComponent : MonoBehaviour
         if (!Application.isPlaying) { return; } // only in play mode
         if (worldVertices == null || triangles == null) { return; }
 
+        #if UNITY_EDITOR
         GUIStyle style = new();
         style.normal.textColor = Color.red;
+        #endif
 
         for (int i = 0; i < triangles.Length; i += 3)
         {
@@ -96,8 +98,10 @@ public class MeshCollisionComponent : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawRay(center, normal * 0.3f);
 
+            #if UNITY_EDITOR
             // draw triangle number
             UnityEditor.Handles.Label(center, (i / 3).ToString(), style);
+            #endif
         }
     }
 

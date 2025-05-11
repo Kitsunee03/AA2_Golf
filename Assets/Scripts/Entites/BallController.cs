@@ -7,6 +7,7 @@ public class BallController : MonoBehaviour
     private PhysicsObject phys;
     private Camera cam;
     private LineRenderer lr;
+    private MeshRenderer meshRenderer;
 
     [SerializeField] private float heightLimit = -10f; // height limit for the ball to reset
 
@@ -26,6 +27,7 @@ public class BallController : MonoBehaviour
     private void Awake()
     {
         phys = GetComponent<PhysicsObject>();
+        meshRenderer = GetComponent<MeshRenderer>();
         lr = GetComponent<LineRenderer>();
         lr.useWorldSpace = true;
         lr.enabled = false;
@@ -35,7 +37,8 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
-        if(transform.position.y < heightLimit) { ResetBall(); }
+        if (transform.position.y < heightLimit) { ResetBall(); }
+        UpdateOutline();
 
         if (phys.ObjectIsInMotion) { return; }
 
@@ -70,7 +73,7 @@ public class BallController : MonoBehaviour
                            + Vector3.up * (v0 * Mathf.Sin(angleRad));
 
         // Draw the prediction
-        DrawPrediction(dragStart, initialVel);
+        DrawPrediction(initialVel);
     }
 
     private void EndDrag()
@@ -87,7 +90,7 @@ public class BallController : MonoBehaviour
         Vector3 dir = delta.normalized;
 
         // 3) Shooting force
-        float forceMagnitude = t * maxLaunchForce; 
+        float forceMagnitude = t * maxLaunchForce;
         Vector3 force = dir * (forceMagnitude * Mathf.Cos(rad))
                       + Vector3.up * (forceMagnitude * Mathf.Sin(rad));
 
@@ -113,7 +116,7 @@ public class BallController : MonoBehaviour
         lr.enabled = false;
     }
 
-    private void DrawPrediction(Vector3 startPos, Vector3 initialVelocity)
+    private void DrawPrediction(Vector3 initialVelocity)
     {
         // We calculate the flight time until returning to the same ground level:
         float tFlight = 2f * initialVelocity.y / -Physics.gravity.y;
@@ -124,12 +127,20 @@ public class BallController : MonoBehaviour
         {
             float t = i * predictionStepTime;
             // s = s0 + v0*t + ½·g·t²
-            points[i] = startPos
+            points[i] = transform.position
                         + initialVelocity * t
                         + 0.5f * Physics.gravity * t * t;
         }
 
         lr.positionCount = steps;
         lr.SetPositions(points);
+    }
+
+    private void UpdateOutline()
+    {
+        if (meshRenderer == null || meshRenderer.materials.Length < 2) { return; }
+
+        if (!dragging && !phys.ObjectIsInMotion) { meshRenderer.materials[1].SetFloat("_Scale", 1.4f); }
+        else { meshRenderer.materials[1].SetFloat("_Scale", 0f); }
     }
 }

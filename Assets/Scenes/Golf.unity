@@ -549,10 +549,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pelotita
       objectReference: {fileID: 0}
-    - target: {fileID: 6229353553411930871, guid: 8e555dcb263510346acbaad2bae974e1, type: 3}
-      propertyPath: mass
-      value: 3.5
-      objectReference: {fileID: 0}
     - target: {fileID: 8805033304665561637, guid: 8e555dcb263510346acbaad2bae974e1, type: 3}
       propertyPath: m_RootOrder
       value: -1

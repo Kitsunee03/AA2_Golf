@@ -47,7 +47,8 @@ MonoBehaviour:
   levelPrefabs:
   - {fileID: 7939345554343089578, guid: 530dfea3571f9c44c869e518f8478dc9, type: 3}
   - {fileID: 7939345554343089578, guid: 5994c98384e3965448a50328e18e2218, type: 3}
-  - {fileID: 7939345554343089578, guid: 24ee967de0d667e4ea11e5d6d566b5f7, type: 3}
+  - {fileID: 8041435766486957384, guid: 24ee967de0d667e4ea11e5d6d566b5f7, type: 3}
   - {fileID: 7939345554343089578, guid: d7c8d11b5a98d284a9cb416560dbaac8, type: 3}
+  - {fileID: 7939345554343089578, guid: 33499d20a2a0d5141b40ec53b35b4fb8, type: 3}
   levelParent: {fileID: 0}
   cheatsEnabled: 0

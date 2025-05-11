@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     private Level currentLevel;
     private int currentLevelIndex = -1;
     private BallController ball;
-
+    
     private void Awake()
     {
         if (Instance == null)

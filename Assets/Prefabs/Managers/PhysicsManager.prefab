@@ -44,3 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24879afe1f49a484fbbc100882af8803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  victorySFX: {fileID: 8300000, guid: 8db21a656d746bb4db1d3fb4822ffd0a, type: 3}

@@ -34,7 +34,6 @@ public class PhysicsObject : MonoBehaviour
     {
         currentSurface = p_surface;
         currentPlaneNormal = p_normal;
-
         isGrounded = true;
     }
 

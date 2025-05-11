@@ -123,6 +123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mass: 3.5
   radius: 0.25
+  collisionSFX: {fileID: 8300000, guid: b3d3af8c0610496429743a6cbb2c4c45, type: 3}
 --- !u!114 &4610008045852824673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +142,8 @@ MonoBehaviour:
   maxLaunchForce: 100
   maxLaunchAngle: 15
   predictionStepTime: 0.1
+  launchSFX: {fileID: 8300000, guid: adf332d1012fa044391e59c501e3b074, type: 3}
+  resetSFX: {fileID: 8300000, guid: e65d1a01bcf1b0847bce9497b422cbf3, type: 3}
 --- !u!120 &7216801661865966118
 LineRenderer:
   serializedVersion: 2

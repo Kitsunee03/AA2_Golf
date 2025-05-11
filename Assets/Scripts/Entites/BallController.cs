@@ -1,5 +1,4 @@
-﻿using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(PhysicsObject), typeof(LineRenderer))]
 public class BallController : MonoBehaviour
@@ -20,6 +19,10 @@ public class BallController : MonoBehaviour
 
     [Header("Prediction Settings")]
     [SerializeField] private float predictionStepTime = 0.1f;
+
+    [Header("SFX")]
+    [SerializeField] private AudioClip launchSFX;
+    [SerializeField] private AudioClip resetSFX;
 
     private Vector3 dragStart;
     private bool dragging;
@@ -97,13 +100,16 @@ public class BallController : MonoBehaviour
         PhysicsManager.Instance.ApplyForce(phys, force);
         dragging = false;
         lr.enabled = false;
+
+        AudioManager.Instance.PlayAudioClipEffect(launchSFX);
     }
 
     private Vector3 GetMouseWorldPos()
     {
-        Plane ground = new Plane(Vector3.up, transform.position);
+        Plane ground = new(Vector3.up, transform.position);
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (ground.Raycast(ray, out float enter)) return ray.GetPoint(enter);
+
+        if (ground.Raycast(ray, out float enter)) { return ray.GetPoint(enter); }
         return transform.position;
     }
 
@@ -114,11 +120,13 @@ public class BallController : MonoBehaviour
         phys.ApplyTransform();
         transform.rotation = Quaternion.identity;
         lr.enabled = false;
+
+        AudioManager.Instance.PlayAudioClipEffect(resetSFX);
     }
 
     private void DrawPrediction(Vector3 initialVelocity)
     {
-        // We calculate the flight time until returning to the same ground level:
+        // we calculate the flight time until returning to the same ground level
         float tFlight = 2f * initialVelocity.y / -Physics.gravity.y;
         int steps = Mathf.CeilToInt(tFlight / predictionStepTime) + 1;
 

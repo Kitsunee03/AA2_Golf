@@ -10,6 +10,9 @@ public class PhysicsManager : MonoBehaviour
     private readonly float dragCoefficient = 0.47f;
     private readonly float[] rollingFriction = { 1.6f, 0.4f, 2.4f };
 
+    [Header("SFX")]
+    [SerializeField] private AudioClip victorySFX;
+
     private List<PhysicsObject> bodies = new();
     private List<MeshCollisionComponent> meshes = new();
 
@@ -24,10 +27,17 @@ public class PhysicsManager : MonoBehaviour
     public void RegisterPhysicsObject(PhysicsObject p_body)
     {
         if (!bodies.Contains(p_body)) bodies.Add(p_body);
-    }   
+    }
     public void RegisterMeshCollider(MeshCollisionComponent p_meshColCom)
     {
         if (!meshes.Contains(p_meshColCom)) meshes.Add(p_meshColCom);
+
+        if (!GameManager.Instance.CurrentLevel.IsGhostLevel) { return; }
+
+        // mesh near check
+        float meshDistance = Vector3.Distance(p_meshColCom.Center, p_meshColCom.transform.position);
+        float maxRange = p_meshColCom.BoundingRadius + p_meshColCom.BoundingRadius;
+        if (meshDistance > maxRange) { p_meshColCom.gameObject.SetActive(false); }
     }
     #endregion
 
@@ -138,7 +148,7 @@ public class PhysicsManager : MonoBehaviour
                 Vector3 p = p_body.Position - n * dist;
                 if (IsPointInTriangle(p, a, b, c))
                 {
-                    // !collision found!:
+                    // !collision found!
 
                     if (Vector3.Dot(p_body.Velocity, n) > 0f) { n = -n; }
 
@@ -154,22 +164,22 @@ public class PhysicsManager : MonoBehaviour
                     }
 
                     p_body.OnCollision(mesh.Surface, n);
+                    hasCollided = true;
 
                     // hole triangle check
                     if (mesh.IsHoleTriangle(triIndex) && !p_body.ObjectIsInMotion && p_body.IsGrounded)
                     {
                         Debug.Log("Enter hole");
+                        AudioManager.Instance.PlayAudioClipEffect(victorySFX);
                         GameManager.Instance.LoadLevel();
                     }
-
-                    hasCollided = true;
                 }
 
                 triIndex++;
             }
         }
 
-        p_body.IsGrounded = hasCollided;
+        if (!hasCollided) { p_body.IsGrounded = false; }
     }
 
     private bool IsPointInTriangle(Vector3 p_point, Vector3 p_a, Vector3 p_b, Vector3 p_c)

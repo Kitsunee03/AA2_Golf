@@ -1253,6 +1253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 319418223925840083}
   - component: {fileID: 526764575048142771}
+  - component: {fileID: 6005713165903163753}
   m_Layer: 0
   m_Name: Level1
   m_TagString: Untagged
@@ -1290,6 +1291,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Noobie Path
   isGhostLevel: 0
+--- !u!114 &6005713165903163753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7939345554343089578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f38608cd25a3764b8cacd9eeacc140f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_musicAudioClip: {fileID: 8300000, guid: a8a25afa60a4e334b86d753bfafa79b2, type: 3}
+  m_fadeInMusicDuration: 1
+  m_fadeOutMusicDuration: 1
+  endArena: 0
 --- !u!1 &8175315534906433887
 GameObject:
   m_ObjectHideFlags: 0

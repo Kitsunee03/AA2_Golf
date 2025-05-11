@@ -3059,6 +3059,7 @@ GameObject:
   m_Component:
   - component: {fileID: 319418223925840083}
   - component: {fileID: 3676501886981165309}
+  - component: {fileID: 4533186222790421146}
   m_Layer: 0
   m_Name: Level2
   m_TagString: Untagged
@@ -3096,6 +3097,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Wind of Wisdom
   isGhostLevel: 0
+--- !u!114 &4533186222790421146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7939345554343089578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f38608cd25a3764b8cacd9eeacc140f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_musicAudioClip: {fileID: 8300000, guid: 7c19e9eb78cf2ad448a147f480111ea0, type: 3}
+  m_fadeInMusicDuration: 1
+  m_fadeOutMusicDuration: 1
+  endArena: 0
 --- !u!1 &8210574733689665785
 GameObject:
   m_ObjectHideFlags: 0

@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 319418223925840083}
   - component: {fileID: 476778381840077717}
+  - component: {fileID: 4472367495983150920}
   m_Layer: 0
   m_Name: Level4
   m_TagString: Untagged
@@ -169,6 +170,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: Phantom Travel
   isGhostLevel: 1
+--- !u!114 &4472367495983150920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7939345554343089578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f38608cd25a3764b8cacd9eeacc140f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_musicAudioClip: {fileID: 8300000, guid: 73c70d215b3b4314688644aebbae411e, type: 3}
+  m_fadeInMusicDuration: 1
+  m_fadeOutMusicDuration: 1
+  endArena: 0
 --- !u!1001 &216536722918623520
 PrefabInstance:
   m_ObjectHideFlags: 0
